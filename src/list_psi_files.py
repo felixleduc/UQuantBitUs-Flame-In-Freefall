@@ -1,18 +1,20 @@
-"""List every file attached to each PSI combustion investigation, without downloading any.
+"""List the files of each PSI combustion investigation that are worth downloading.
 
 The PSI repository (https://psi.nasa.gov/physci/repo) is a JavaScript app, so each public
 investigation page is opened in a headless browser. This script walks the "Data files and
-documents" tree of each page and records name, folder, size, date and kind (document,
-image, video, archive, other) of each file, plus whether it is useful for the dashboard (yes, no, maybe)
-and what it contains (the USEFUL rules below). download_psi_files.py then fetches the useful ones.
+documents" tree of each page (about 66,000 files, 12 TB, mostly videos and images) and keeps
+the ones useful for the dashboard: verdict "yes", or "maybe" for the few nobody has opened.
+The verdict comes from the USEFUL rules below. Nothing is downloaded here:
+download_psi_files.py fetches the listed files.
 
 Usage:
     uv run python src/list_psi_files.py            # all investigations
     uv run python src/list_psi_files.py 25 99      # only PSI-25 and PSI-99
 
 Output:
-    data/files.csv    one row per file, saved after each investigation; a run replaces only
-                      the rows of the investigations it visits
+    data/files.csv    one row per kept file: folder, name, kind, verdict, what it contains,
+                      size and date. Saved after each investigation; a run replaces only the
+                      rows of the investigations it visits.
 """
 
 import csv
@@ -73,7 +75,7 @@ USEFUL = [
     (r"^[^/]+/Experimental table/", "yes", "summary table of all tests"),
     # Hardware bookkeeping, photo indexes, duplicates
     (r"Cama?era_Sett+ings|CameraConfigure|_Exposures\.txt|_CAM\d_Exp|Filter_Positions|LCTF_Wavelen", "no", "camera and optics settings"),
-    (r"Test_?p\w*nt_Settings|_VoltageSweep\.txt|_BRE\.txt|_TP\.txt|_from_log\.txt", "no", "test-point script settings and timing"),
+    (r"Test_?p\w*nt_Settings|_from_log\.txt", "no", "test-point hardware settings"),
     (r"Comment|MissingImageData|_Readme\.txt|Readme-Test", "no", "notes on image downlink and data handling"),
     (r"Proof_?Sheet|Contact_?Sheet|PictureBook|pic_info|_num\.txt|Image[ _]Directory|ImageFrameSizes|Image Organization"
      r"|MergeResult|Images_From|DAFT Images|/(\d{2,3}CH4_[\d._]+|\d{4}_\d{4})\.pdf$|Soot_Image|BacklitSample|nikon"
@@ -85,10 +87,15 @@ USEFUL = [
     (r"^(FLEX-2|CFI)/.*Chamber_Readings", "yes", "chamber pressure and temperature during the test"),
     (r"_data[ ()\d]*\.csv|mfcSetpoints|Radiometer_Readings|Chamber_Readings|HKPData|Raw telemetry|RadiometerData"
      r"|Cool_Flames\.txt|PTandMFC|_Radiometer\.pdf|Pressure_Temperature\.pdf", "no", "raw instrument log"),
-    (r"/(PSI-\d+_[A-Za-z ]+_)?(as run)?[A-Za-z0-9]+(_\d)?\.txt$", "no", "test-point automation log or image time stamps"),
+    (r"/(PSI-\d+_[A-Za-z ]+_)?[A-Za-z0-9]*\d[A-Z]\.txt$", "no", "image time stamps of one camera"),
+    (r"/(PSI-\d+_[A-Za-z ]+_)?(as run)?[A-Za-z0-9]+(_\d)?\.txt$|_BRE\.txt|_VoltageSweep\.txt", "yes",
+     "test-point definition or log: commanded flows, fuel concentration, voltages, igniter settings, average pressure"),
+    (r"_TP\.txt", "yes", "timing of the test: ignition, extinction detected, flows off"),
     (r"Event_Log_entry", "no", "operator log entries without extractable text"),
-    (r"test sheets|test param\w* notes|test point log\.pdf|flow traces|velocity traces|_MFCA_all\.pdf|^CLD-Flame/Raw Data/.*/(PSI-21_Raw Data_)?\d{5}\.pdf$",
-     "no", "scanned or plotted daily sheets, little or no text"),
+    (r"test sheets\.pdf", "yes", "scanned handwritten science sheet per test: conditions and flame behaviour (needs a vision model or manual reading)"),
+    (r"flow traces", "yes", "daily notes per test (ignition success or failure, settings) with flow plots"),
+    (r"test param\w* notes|test point log\.pdf|velocity traces|_MFCA_all\.pdf|^CLD-Flame/Raw Data/.*/(PSI-21_Raw Data_)?\d{5}\.pdf$",
+     "no", "scanned parameter printouts, image-count logs or plots"),
     (r"Operations\.pdf|SFS-W-|Offgassing|Crew Training|Crew Interface|Software|Procedure|VIDEO OVERLAY|Operations Manual"
      r"|_Ops\.|Hardware Presentation|Engineering Req|ERD\.|EIRD|Drawing|AcceptanceReview|DesignReview", "no", "operations, software or hardware paperwork"),
     (r"fact[ _]sheet|info[ _]sheet|Unlocking|Researchers[ _]Guide|benefits|TaskbookPubs|Presentation|Symposium|ASGSR|CSSCI|Conference",
@@ -106,6 +113,7 @@ USEFUL = [
      r"|Radial_Intensity|BurningHistory|Profiles\.pdf|/(PSI-69_Raw Data_)?FLEX-\d+\.pdf$",
      "yes", "per-test conditions and analysed droplet and flame results"),
     (r"Chamber Calculator", "yes", "chamber gas composition for each test"),
+    (r"Coagulation", "yes", "smoke particle concentration and size before and after ageing"),
     (r"/Analyzed Data/.*(testlog| log\b)", "no", "command log of the instrument"),
     (r"/Analyzed Data/", "yes", "analysed measurements"),
     (r"SRD|SCR|ISRD|SORD|Requirements|Test_Plan|Concept Description|DLD", "no", "requirements and plans written before the flight"),
@@ -244,7 +252,7 @@ def read_inventory() -> list[dict]:
     for row in rows:  # the verdicts always follow the current rules, even for an older inventory
         row["kind"] = kind_of(row["extension"])
         row["useful"], row["content"] = usefulness(row)
-    return rows
+    return [row for row in rows if row["useful"] != "no"]
 
 
 def main() -> None:
@@ -256,13 +264,14 @@ def main() -> None:
         for psi_id, name in todo:
             files = in_fresh_browser(p, f"PSI-{psi_id}", lambda page: list_files(page, psi_id))
             total = sum(f["size_mb"] or 0 for f in files)
-            print(f"PSI-{psi_id:<4} {name:<15} {len(files):>5} files, {total / 1024:>8.2f} GB", flush=True)
+            print(f"PSI-{psi_id:<4} {name:<15} {len(files):>5} files on the page, {total / 1024:>8.2f} GB", flush=True)
             # Replace the rows of this investigation and save at once, so a crash later loses nothing.
             rows = [r for r in rows if r["psi_id"] != f"PSI-{psi_id}"]
             for f in files:
                 row = {"psi_id": f"PSI-{psi_id}", "name": name, **f}
                 row["useful"], row["content"] = usefulness(row)
-                rows.append(row)
+                if row["useful"] != "no":  # the files judged not useful are left out of the list
+                    rows.append(row)
             with open(FILES_CSV, "w", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(f, fieldnames=FIELDS)
                 writer.writeheader()
