@@ -1,15 +1,15 @@
-"""Download the documents listed in data/files.csv: PDF, Word, Excel, PowerPoint, CSV, text.
+"""Download the files listed in data/files.csv.
 
-Nothing else is downloaded: no video, image, archive, or instrument and camera format
-(the list is KINDS["document"] in list_psi_files.py). The one exception is the small
-metadata archive of each investigation.
+That list holds the files judged useful for the dashboard: test tables, measured
+conditions, analysed results, calibrations, reports and the documents that explain them,
+plus the few nobody has reviewed (see list_psi_files.py, which writes it).
 
 The work is spread over several browsers running side by side (8 by default), each taking
 its own share of the folders. Files already on disk are skipped, so the script can be
-interrupted and run again. Run list_psi_files.py first: it writes data/files.csv.
+interrupted and run again.
 
 Usage:
-    uv run python src/download_psi_files.py                    # all investigations, 8 browsers
+    uv run python src/download_psi_files.py                    # all investigations
     uv run python src/download_psi_files.py 25 99              # only PSI-25 and PSI-99
     uv run python src/download_psi_files.py --workers 4        # fewer browsers (less memory)
     uv run python src/download_psi_files.py --max-mb 20        # skip files above 20 MB (default 100)
@@ -21,7 +21,9 @@ Output:
 """
 
 import argparse
+import html
 import os
+import re
 import subprocess
 import sys
 import time
@@ -30,24 +32,33 @@ from pathlib import Path
 
 from playwright.sync_api import Page, sync_playwright
 
-from list_psi_files import INVESTIGATIONS, ROOT, ROWS, in_fresh_browser, kind_of, read_inventory, walk_tree
+from list_psi_files import INVESTIGATIONS, ROOT, ROWS, in_fresh_browser, read_inventory, walk_tree
 
 RAW = ROOT / "data" / "raw"
-METADATA_FOLDER = "Investigation Metadata Files"
 Share = tuple[int, int]  # (k, n): the k-th of n equal shares of the folders
 
 
+def safe(name: str, limit: int = 150) -> str:
+    """A folder or file name every system accepts: some PSI folders are named after a whole
+    article citation, too long for a file system and with characters Windows refuses."""
+    name = re.sub(r'[<>:"\\|?*]', "_", html.unescape(name)).strip(" .")
+    if len(name) > limit:
+        stem, dot, extension = name.rpartition(".")
+        name = f"{stem[:limit - len(extension) - 1]}.{extension}" if dot and len(extension) <= 5 else name[:limit]
+    return name.strip(" .")
+
+
 def destination(row: dict) -> Path:
-    return RAW / f"{row['psi_id']}_{row['name']}" / row["folder"] / row["file"]
+    folders = [safe(part) for part in row["folder"].split("/")]
+    return RAW.joinpath(f"{row['psi_id']}_{row['name']}", *folders, safe(row["file"]))
 
 
 def select(inventory: list[dict], psi_id: int, max_mb: float, share: Share) -> tuple[dict, list[dict]]:
-    """Documents of one investigation that fall in this share: ({(folder, file): row}, too big)."""
+    """Files of one investigation to download in this share: ({(folder, file): row}, too big)."""
     k, n = share
     rows = [
         r for r in inventory
         if r["psi_id"] == f"PSI-{psi_id}"
-        and (kind_of(r["extension"]) == "document" or r["folder"] == METADATA_FOLDER)
         # A folder always falls in the same share, whatever the machine.
         and zlib.crc32(f"{psi_id}/{r['folder']}".encode()) % n == k - 1
     ]
@@ -137,7 +148,7 @@ def run_workers(ids: list[int], max_mb: float, parts: list[int], of: int, count_
             if time.time() - last_report > 60:
                 last_report = time.time()
                 have, total = count_on_disk()
-                print(f"{have} of {total} documents on disk", flush=True)
+                print(f"{have} of {total} files on disk", flush=True)
     finally:
         for process in running.values():  # Ctrl-C: stop the browsers too
             process.terminate()
@@ -168,7 +179,7 @@ def main() -> None:
             return sum(destination(r).exists() for r in rows), len(rows)
 
         have, total = count_on_disk()
-        print(f"{total} documents wanted, {have} already on disk, {args.workers} browsers", flush=True)
+        print(f"{total} files wanted, {have} already on disk, {args.workers} browsers", flush=True)
         # Part k of n is cut again into one share per browser: the folders whose number,
         # modulo n * workers, is k - 1, k - 1 + n, k - 1 + 2n, ...
         parts = [(k - 1) + j * n + 1 for j in range(args.workers)]
@@ -179,7 +190,7 @@ def main() -> None:
             continue
         wanted, too_big = select(inventory, psi_id, args.max_mb, (k, n))
         missing = [r for r in wanted.values() if not destination(r).exists()]
-        print(f"PSI-{psi_id:<4} {name:<15} {len(wanted) - len(missing):>5} of {len(wanted):>5} documents on disk"
+        print(f"PSI-{psi_id:<4} {name:<15} {len(wanted) - len(missing):>5} of {len(wanted):>5} files on disk"
               + (f", {len(too_big)} above {args.max_mb:g} MB skipped" if too_big else ""), flush=True)
         for r in too_big:
             print(f"  skipped ({r['size']}): {r['folder']}/{r['file']}", flush=True)
