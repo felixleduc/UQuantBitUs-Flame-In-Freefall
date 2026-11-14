@@ -3,7 +3,7 @@
 The PSI repository (https://psi.nasa.gov/physci/repo) is a JavaScript app, so each public
 investigation page is opened in a headless browser. This script walks the "Data files and
 documents" tree of each page and records name, folder, size, date and kind (document,
-image, video, archive) of each file. download_psi_files.py then fetches the documents.
+image, video, archive, other) of each file. download_psi_files.py then fetches the documents.
 
 Usage:
     uv run python src/list_psi_files.py            # all investigations
@@ -58,6 +58,7 @@ FILES_CSV = ROOT / "data" / "files.csv"
 FIELDS = ["psi_id", "name", "folder", "file", "extension", "kind", "size", "size_mb", "date_added"]
 UNITS = {"B": 1 / 1024**2, "KB": 1 / 1024, "MB": 1, "GB": 1024, "TB": 1024**2}
 KINDS = {
+    "document": {"pdf", "doc", "docx", "xls", "xlsx", "csv", "txt", "rtf", "ppt", "pptx"},
     "video": {"mp4", "mpg", "mpeg", "avi", "mov", "wmv", "m4v", "mkv", "ts"},  # ts: MPEG transport stream
     "image": {"jpg", "jpeg", "png", "tif", "tiff", "bmp", "gif", "eps", "svg", "raw", "cr2", "nef"},
     "archive": {"zip", "tar", "gz", "tgz", "7z", "rar"},
@@ -95,15 +96,16 @@ def in_fresh_browser[T](p: Playwright, label: str, job: Callable[[Page], T]) -> 
 
 
 def kind_of(extension: str) -> str:
-    """Anything that is not a video, an image or an archive counts as a document."""
-    return next((kind for kind, extensions in KINDS.items() if extension in extensions), "document")
+    """Kind of a file from its extension. Unlisted ones (instrument and camera formats
+    such as .dat) are "other": only what is surely a document gets downloaded."""
+    return next((kind for kind, extensions in KINDS.items() if extension in extensions), "other")
 
 
 def size_in_mb(size: str) -> float | None:
     match = re.match(r"([\d.,]+)\s*([KMGT]?B)", size, re.IGNORECASE)
     if not match:
         return None
-    return round(float(match.group(1).replace(",", "")) * UNITS[match.group(2).upper()], 3)
+    return round(float(match.group(1).replace(",", "")) * UNITS[match.group(2).upper()], 6)
 
 
 def file_record(row: dict, path: list[str]) -> dict:

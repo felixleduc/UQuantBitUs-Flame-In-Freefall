@@ -1,14 +1,17 @@
-"""Download the documents listed in data/files.csv: text, PDF, CSV, Excel, Word and the like.
+"""Download the documents listed in data/files.csv: PDF, Word, Excel, PowerPoint, CSV, text.
 
-Videos, images and archives are never downloaded, except the small metadata archive of
-each investigation. Files already on disk are skipped, so the script can be run again
+Nothing else is downloaded: no video, image, archive, or instrument and camera format
+(the list is KINDS["document"] in list_psi_files.py). The one exception is the small
+metadata archive of each investigation. Files already on disk are skipped, so the script can be run again
 after an interruption. Run list_psi_files.py first: it writes data/files.csv.
 
 Usage:
     uv run python src/download_psi_files.py                    # all investigations
     uv run python src/download_psi_files.py 25 99              # only PSI-25 and PSI-99
-    uv run python src/download_psi_files.py --no-raw           # skip the "Raw Data" folders
     uv run python src/download_psi_files.py --max-mb 20        # skip files above 20 MB (default 100)
+    uv run python src/download_psi_files.py --part 2/8         # second of 8 equal shares: run the 8
+                                                               # shares at once (several terminals or
+                                                               # machines) to go 8 times faster
 
 Output:
     data/raw/PSI-<id>_<name>/<folder>/<file>     (not committed: see .gitignore)
@@ -16,6 +19,7 @@ Output:
 
 import argparse
 import time
+import zlib
 from pathlib import Path
 
 from playwright.sync_api import Page, sync_playwright
@@ -32,7 +36,8 @@ def destination(row: dict) -> Path:
 
 def download(page: Page, psi_id: int, wanted: dict[tuple[str, str], dict]) -> int:
     """Download the wanted files of one investigation that are not on disk yet."""
-    folders = {folder for folder, _ in wanted}
+    # Only the folders that still miss a file are opened: a rerun goes straight to them.
+    folders = {folder for (folder, _), entry in wanted.items() if not destination(entry).exists()}
     selected = page.locator("app-geode-tree .panel-heading")
     done = 0
 
@@ -80,9 +85,10 @@ def download(page: Page, psi_id: int, wanted: dict[tuple[str, str], dict]) -> in
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("ids", nargs="*", type=int, help="PSI ids (default: all)")
-    parser.add_argument("--no-raw", action="store_true", help='skip the "Raw Data" folders')
     parser.add_argument("--max-mb", type=float, default=100, help="skip larger files (default: 100)")
+    parser.add_argument("--part", default="1/1", metavar="K/N", help="only the K-th of N equal shares of the folders")
     args = parser.parse_args()
+    share, shares = (int(x) for x in args.part.split("/"))
 
     inventory = read_inventory()
     for row in inventory:  # kinds follow the current rules, even for an older inventory
@@ -95,7 +101,8 @@ def main() -> None:
                 r for r in inventory
                 if r["psi_id"] == f"PSI-{psi_id}"
                 and (r["kind"] == "document" or r["folder"] == METADATA_FOLDER)
-                and not (args.no_raw and r["folder"].startswith("Raw Data"))
+                # A folder always falls in the same share, whatever the machine.
+                and zlib.crc32(f"{psi_id}/{r['folder']}".encode()) % shares == share - 1
             ]
             too_big = [r for r in rows if float(r["size_mb"] or 0) > args.max_mb]
             wanted = {(r["folder"], r["file"]): r for r in rows if r not in too_big}
