@@ -2,22 +2,28 @@
 
 Nothing else is downloaded: no video, image, archive, or instrument and camera format
 (the list is KINDS["document"] in list_psi_files.py). The one exception is the small
-metadata archive of each investigation. Files already on disk are skipped, so the script can be run again
-after an interruption. Run list_psi_files.py first: it writes data/files.csv.
+metadata archive of each investigation.
+
+The work is spread over several browsers running side by side (8 by default), each taking
+its own share of the folders. Files already on disk are skipped, so the script can be
+interrupted and run again. Run list_psi_files.py first: it writes data/files.csv.
 
 Usage:
-    uv run python src/download_psi_files.py                    # all investigations
+    uv run python src/download_psi_files.py                    # all investigations, 8 browsers
     uv run python src/download_psi_files.py 25 99              # only PSI-25 and PSI-99
+    uv run python src/download_psi_files.py --workers 4        # fewer browsers (less memory)
     uv run python src/download_psi_files.py --max-mb 20        # skip files above 20 MB (default 100)
-    uv run python src/download_psi_files.py --part 2/8         # second of 8 equal shares: run the 8
-                                                               # shares at once (several terminals or
-                                                               # machines) to go 8 times faster
+    uv run python src/download_psi_files.py --part 2/3         # one machine out of 3: only the
+                                                               # second third of the folders
 
 Output:
     data/raw/PSI-<id>_<name>/<folder>/<file>     (not committed: see .gitignore)
 """
 
 import argparse
+import os
+import subprocess
+import sys
 import time
 import zlib
 from pathlib import Path
@@ -28,21 +34,34 @@ from list_psi_files import INVESTIGATIONS, ROOT, ROWS, in_fresh_browser, kind_of
 
 RAW = ROOT / "data" / "raw"
 METADATA_FOLDER = "Investigation Metadata Files"
+Share = tuple[int, int]  # (k, n): the k-th of n equal shares of the folders
 
 
 def destination(row: dict) -> Path:
     return RAW / f"{row['psi_id']}_{row['name']}" / row["folder"] / row["file"]
 
 
-def download(page: Page, psi_id: int, wanted: dict[tuple[str, str], dict]) -> int:
+def select(inventory: list[dict], psi_id: int, max_mb: float, share: Share) -> tuple[dict, list[dict]]:
+    """Documents of one investigation that fall in this share: ({(folder, file): row}, too big)."""
+    k, n = share
+    rows = [
+        r for r in inventory
+        if r["psi_id"] == f"PSI-{psi_id}"
+        and (kind_of(r["extension"]) == "document" or r["folder"] == METADATA_FOLDER)
+        # A folder always falls in the same share, whatever the machine.
+        and zlib.crc32(f"{psi_id}/{r['folder']}".encode()) % n == k - 1
+    ]
+    too_big = [r for r in rows if float(r["size_mb"] or 0) > max_mb]
+    return {(r["folder"], r["file"]): r for r in rows if r not in too_big}, too_big
+
+
+def download(page: Page, psi_id: int, wanted: dict[tuple[str, str], dict]) -> None:
     """Download the wanted files of one investigation that are not on disk yet."""
     # Only the folders that still miss a file are opened: a rerun goes straight to them.
     folders = {folder for (folder, _), entry in wanted.items() if not destination(entry).exists()}
     selected = page.locator("app-geode-tree .panel-heading")
-    done = 0
 
     def on_file(index: int, row: dict, path: list[str]) -> None:
-        nonlocal done
         entry = wanted.get(("/".join(path), row["name"]))
         if entry is None or destination(entry).exists():
             return
@@ -63,9 +82,9 @@ def download(page: Page, psi_id: int, wanted: dict[tuple[str, str], dict]) -> in
             listed = float(entry["size_mb"] or 0)
             if abs(size_mb - listed) > max(0.02 * listed, 0.01):
                 print(f"  size differs from the listing ({size_mb:.2f} MB, listed {listed} MB): {target.name}", flush=True)
-            done += 1
         else:  # some listed files are gone from the PSI storage: report and carry on
-            print(f"  not available on the server (HTTP {response.status}): {entry['folder']}/{row['name']}", flush=True)
+            print(f"  not available on the server (HTTP {response.status}): "
+                  f"PSI-{psi_id} {entry['folder']}/{row['name']}", flush=True)
         response.dispose()
         for tab in page.context.pages:
             if tab != page:
@@ -79,43 +98,95 @@ def download(page: Page, psi_id: int, wanted: dict[tuple[str, str], dict]) -> in
         return any(folder == here or folder.startswith(here + "/") for folder in folders)
 
     walk_tree(page, psi_id, on_file, enter)
-    return done
+
+
+def run_share(inventory: list[dict], ids: list[int], max_mb: float, share: Share) -> None:
+    """Download one share of the folders, one investigation after the other, in one browser."""
+    with sync_playwright() as p:
+        for psi_id in ids:
+            wanted, _ = select(inventory, psi_id, max_mb, share)
+            if any(not destination(r).exists() for r in wanted.values()):
+                # After a crash the retry skips what is already on disk.
+                in_fresh_browser(p, f"PSI-{psi_id}", lambda page: download(page, psi_id, wanted))
+
+
+def run_workers(ids: list[int], max_mb: float, parts: list[int], of: int, count_on_disk) -> None:
+    """Run these parts (out of `of`) at once, each in its own process, restarting those that crash."""
+    def start(part: int) -> subprocess.Popen:
+        command = [sys.executable, __file__, *map(str, ids), "--max-mb", str(max_mb), "--part", f"{part}/{of}", "--child"]
+        return subprocess.Popen(command, env={**os.environ, "PYTHONUNBUFFERED": "1"})
+
+    running = {}
+    restarts = dict.fromkeys(parts, 0)
+    try:
+        for part in parts:
+            running[part] = start(part)
+            time.sleep(2)
+        last_report = time.time()
+        while running:
+            time.sleep(2)
+            for part, process in list(running.items()):
+                code = process.poll()
+                if code is None:
+                    continue
+                del running[part]
+                if code != 0 and restarts[part] < 5:  # typically a browser crash when memory is short
+                    restarts[part] += 1
+                    print("  a browser stopped, restarting it", flush=True)
+                    running[part] = start(part)
+            if time.time() - last_report > 60:
+                last_report = time.time()
+                have, total = count_on_disk()
+                print(f"{have} of {total} documents on disk", flush=True)
+    finally:
+        for process in running.values():  # Ctrl-C: stop the browsers too
+            process.terminate()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("ids", nargs="*", type=int, help="PSI ids (default: all)")
+    parser.add_argument("--workers", type=int, default=8, help="browsers running side by side (default: 8)")
     parser.add_argument("--max-mb", type=float, default=100, help="skip larger files (default: 100)")
-    parser.add_argument("--part", default="1/1", metavar="K/N", help="only the K-th of N equal shares of the folders")
+    parser.add_argument("--part", default="1/1", metavar="K/N",
+                        help="only the K-th of N equal shares of the folders, to split the work between machines")
+    parser.add_argument("--child", action="store_true", help=argparse.SUPPRESS)  # one of the browsers of a run
     args = parser.parse_args()
-    share, shares = (int(x) for x in args.part.split("/"))
-
+    k, n = (int(x) for x in args.part.split("/"))
+    ids = [psi_id for psi_id, _ in INVESTIGATIONS if not args.ids or psi_id in args.ids]
     inventory = read_inventory()
-    for row in inventory:  # kinds follow the current rules, even for an older inventory
-        row["kind"] = kind_of(row["extension"])
-    with sync_playwright() as p:
-        for psi_id, name in INVESTIGATIONS:
-            if args.ids and psi_id not in args.ids:
-                continue
-            rows = [
-                r for r in inventory
-                if r["psi_id"] == f"PSI-{psi_id}"
-                and (r["kind"] == "document" or r["folder"] == METADATA_FOLDER)
-                # A folder always falls in the same share, whatever the machine.
-                and zlib.crc32(f"{psi_id}/{r['folder']}".encode()) % shares == share - 1
-            ]
-            too_big = [r for r in rows if float(r["size_mb"] or 0) > args.max_mb]
-            wanted = {(r["folder"], r["file"]): r for r in rows if r not in too_big}
-            missing = [r for r in wanted.values() if not destination(r).exists()]
-            done = 0
-            if missing:
-                # After a crash the retry skips what is already on disk.
-                done = in_fresh_browser(p, f"PSI-{psi_id}", lambda page: download(page, psi_id, wanted))
-            left = sum(not destination(r).exists() for r in wanted.values())
-            print(f"PSI-{psi_id:<4} {name:<15} {done:>4} downloaded, {len(wanted) - len(missing):>4} already there, "
-                  f"{left} missing, {len(too_big)} above {args.max_mb:g} MB", flush=True)
-            for r in too_big:
-                print(f"  skipped ({r['size']}): {r['folder']}/{r['file']}", flush=True)
+
+    if args.child or args.workers <= 1:
+        run_share(inventory, ids, args.max_mb, (k, n))
+        if args.child:
+            return
+    else:
+        selections = [select(inventory, psi_id, args.max_mb, (k, n))[0] for psi_id in ids]
+
+        def count_on_disk() -> tuple[int, int]:
+            rows = [r for wanted in selections for r in wanted.values()]
+            return sum(destination(r).exists() for r in rows), len(rows)
+
+        have, total = count_on_disk()
+        print(f"{total} documents wanted, {have} already on disk, {args.workers} browsers", flush=True)
+        # Part k of n is cut again into one share per browser: the folders whose number,
+        # modulo n * workers, is k - 1, k - 1 + n, k - 1 + 2n, ...
+        parts = [(k - 1) + j * n + 1 for j in range(args.workers)]
+        run_workers(ids, args.max_mb, parts, n * args.workers, count_on_disk)
+
+    for psi_id, name in INVESTIGATIONS:
+        if psi_id not in ids:
+            continue
+        wanted, too_big = select(inventory, psi_id, args.max_mb, (k, n))
+        missing = [r for r in wanted.values() if not destination(r).exists()]
+        print(f"PSI-{psi_id:<4} {name:<15} {len(wanted) - len(missing):>5} of {len(wanted):>5} documents on disk"
+              + (f", {len(too_big)} above {args.max_mb:g} MB skipped" if too_big else ""), flush=True)
+        for r in too_big:
+            print(f"  skipped ({r['size']}): {r['folder']}/{r['file']}", flush=True)
+        for r in missing[:20]:
+            print(f"  missing: {r['folder']}/{r['file']}", flush=True)
+        if len(missing) > 20:
+            print(f"  ... and {len(missing) - 20} more missing", flush=True)
 
 
 if __name__ == "__main__":
