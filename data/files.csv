@@ -1,0 +1,218 @@
+psi_id,name,folder,file,extension,size,size_mb,date_added
+PSI-99,SAFFIRE-II,Investigation Metadata Files,PSI-99_metadata_PSI-167_SAFFIRE-II.zip,zip,10.29 KB,0.01,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Experimental table,PSI-99_Experimental table_SAFFIRE-2.csv,csv,1.93 KB,0.002,Fri Jan 24 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE_II_F1C1-BIT_jpeg.zip,zip,20.45 MB,20.45,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE-II_F1C1_DistortionGrid-30mmBlock_1280x916_mono.zip,zip,182.13 KB,0.178,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE-II_F1C1_DistortionGrid-30mmBlock_1360x1024.zip,zip,3.22 MB,3.22,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE-II_F1C1_DistortionGrid-30mmBlock_1280x916_color.zip,zip,1.68 MB,1.68,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE_II_F1C1_Image_Data_All_JPEGS.zip,zip,28.97 MB,28.97,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE_II_F1C1_Raw2TIFF.zip,zip,1014.23 MB,1014.23,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE-II_F1C1_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,126.01 KB,0.123,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE_II_F1C1_Illustrative_images.zip,zip,181.32 KB,0.177,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE-II_F1C1_Image_Data_JPEGs_Mapped.zip,zip,46.87 MB,46.87,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE-II_F1C1_Image_Data_RAW2TIFF_Mapped.zip,zip,551.78 MB,551.78,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C1,PSI-99_Raw Data_SAFFIRE-II Operations.pdf,pdf,13.65 KB,0.013,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C2,PSI-99_Raw Data_SAFFIRE_II_F1C2_BIT_jpeg.zip,zip,23.24 MB,23.24,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C2,PSI-99_Raw Data_SAFFIRE_II_F1C2_DistortionGrids_1280x916.zip,zip,8.81 MB,8.81,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C2,PSI-99_Raw Data_SAFFIRE_II_F1C2_DistortionGrids_1360x1024.zip,zip,2.08 MB,2.08,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C2,PSI-99_Raw Data_SAFFIRE_II_F1C2_DistortionGrids_Sample_ROI.zip,zip,1.61 MB,1.61,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C2,PSI-99_Raw Data_SAFFIRE_II_F1C2_Image_Data_JPEGS.zip,zip,31.16 MB,31.16,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C2,PSI-99_Raw Data_SAFFIRE_II_F1C2_Image_Data_RAWs.zip,zip,20.73 MB,20.73,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C2,PSI-99_Raw Data_SAFFIRE-II_F1C2_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,112.68 KB,0.11,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C2,PSI-99_Raw Data_SAFFIRE_II_F1C2_Illustrative_images.zip,zip,163.7 KB,0.16,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C2,PSI-99_Raw Data_SAFFIRE-II_F1C2_Image_Data_All_JPEGs_Mapped.zip,zip,50.61 MB,50.61,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F1C2,PSI-99_Raw Data_SAFFIRE-II_F1C2_Image_Data_RAW2TIFF_Mapped.zip,zip,32.14 MB,32.14,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F2C1,PSI-99_Raw Data_SAFFIRE_II_F2C1_Image_Data_All_JPEGS.zip,zip,26.77 MB,26.77,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F2C1,PSI-99_Raw Data_SAFFIRE_II_F2C1_Image_Data_RAW2TIFF.zip,zip,12.56 MB,12.56,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F2C1,PSI-99_Raw Data_SAFFIRE-II_F2C1_Image_Data_All_JPEGs_Mapped.zip,zip,46.09 MB,46.09,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F2C2,PSI-99_Raw Data_SAFFIRE_II_F2C2_Image_Data_All-JPEGS.zip,zip,37.96 MB,37.96,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F2C2,PSI-99_Raw Data_SAFFIRE_II_F2C2_Image_Data_RAW2TIFF.zip,zip,10.67 MB,10.67,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II F2C2,PSI-99_Raw Data_SAFFIRE-II_F2C2_Image_Data_All_JPEGs_Mapped.zip,zip,59.68 MB,59.68,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C1,PSI-99_Raw Data_SAFFIRE_II_S1C1_BIT_jpeg.zip,zip,2.64 MB,2.64,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE_II_S1C2_BIT_jpeg.zip,zip,11.34 MB,11.34,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE_II_S1C2_DistortionGrids_Sample_ROI.zip,zip,132.57 KB,0.129,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE_II_S1C2_Image_Data_RAW2TIFF.zip,zip,41.19 MB,41.19,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,9.47 KB,0.009,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_RAW2TIFF_Mapped.zip,zip,64.86 MB,64.86,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_RAW2TIFF_Mapped_ICMAD.zip,zip,73.54 MB,73.54,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_All-JPEGS_part1.zip,zip,22.97 MB,22.97,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_All-JPEGS_part3.zip,zip,6.76 MB,6.76,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_All-JPEGS_part2.zip,zip,24.46 MB,24.46,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_jpegs2png_icmad_part1.zip,zip,372.04 MB,372.04,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_jpegs2png_icmad_part3.zip,zip,110.03 MB,110.03,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_jpegs2png_icmad_part2.zip,zip,400.15 MB,400.15,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_All-JPEGs_Mapped_part2.zip,zip,29.48 MB,29.48,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_All-JPEGs_Mapped_part3.zip,zip,8.16 MB,8.16,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S1C2,PSI-99_Raw Data_SAFFIRE-II_S1C2_Image_Data_All-JPEGs_Mapped_part1.zip,zip,27.74 MB,27.74,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE_II_S2C2_DistortionGrids_Sample_ROI.zip,zip,126.23 KB,0.123,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE_II_S2C2_Image_Data_RAW2TIFF.zip,zip,59.03 MB,59.03,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,9.71 KB,0.009,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_RAW2TIFF_Mapped.zip,zip,81.15 MB,81.15,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_RAW2TIFF_Mapped_ICMAD.zip,zip,81.16 MB,81.16,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_All_JPEGs_part2.zip,zip,22.56 MB,22.56,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_All_JPEGs_part3.zip,zip,22.58 MB,22.58,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_All_JPEGs_part1.zip,zip,21.63 MB,21.63,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_jpegs2png_icmad_part2.zip,zip,356.37 MB,356.37,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_jpegs2png_icmad_part3.zip,zip,355.32 MB,355.32,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_jpegs2png_icmad_part1.zip,zip,340.02 MB,340.02,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_All_JPEGs_Mapped_part2.zip,zip,27.84 MB,27.84,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_All_JPEGs_Mapped_part3.zip,zip,27.83 MB,27.83,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_All_JPEGs_Mapped_part1.zip,zip,26.74 MB,26.74,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_All_JPEGs_Mapped_part2.zip,zip,27.84 MB,27.84,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_All_JPEGs_Mapped_part3.zip,zip,27.83 MB,27.83,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S2C2,PSI-99_Raw Data_SAFFIRE-II_S2C2_Image_Data_All_JPEGs_Mapped_part1.zip,zip,26.74 MB,26.74,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE_II_S3C2_DistortionGrids_Sample_ROI_JPEGS.zip,zip,130.72 KB,0.128,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE_II_S3C2_Image_Data_RAW2TIFF.zip,zip,90.83 MB,90.83,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE-II_S3C2_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,10.49 KB,0.01,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE-II_S3C2_Image_Data_RAW2TIFF_Mapped.zip,zip,136.41 MB,136.41,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE-II_S3C2_Image_Data_RAW2TIFF_Mapped_ICMAD.zip,zip,136.43 MB,136.43,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE-II_S3C2_Image_Data_All-JPEGs_part2.zip,zip,22.89 MB,22.89,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE-II_S3C2_Image_Data_All-JPEGs_part3.zip,zip,22.56 MB,22.56,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE_II_S3C2_Image_Data_All-JPEGs_part1.zip,zip,21.32 MB,21.32,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE-II_S3C2_Image_Data_jpegs2png_icmad_part1.zip,zip,341.59 MB,341.59,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE-II_S3C2_Image_Data_jpegs2png_icmad_part2.zip,zip,368.58 MB,368.58,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S3C2,PSI-99_Raw Data_SAFFIRE-II_S3C2_Image_Data_jpegs2png_icmad_part3.zip,zip,362.35 MB,362.35,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE_II_S4C1_DistortionGrids_Sample_ROI.zip,zip,125.12 KB,0.122,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE_II_S4C1_Image_Data_RAW2TIFF.zip,zip,32.89 MB,32.89,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE-II_S4C1_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,7.87 KB,0.008,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE-II_Image_Data_RAW2TIFF_Mapped.zip,zip,68.19 MB,68.19,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE-II_S4C1_Image_Data_RAW2TIFF_Mapped_ICMAD.zip,zip,77.64 MB,77.64,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE-II_S4C1_Image_Data_RAW2TIFF_Mapped_v2_ICMAD.zip,zip,76.17 MB,76.17,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE-II_S4C1_Image_Data_All_JPEGs_part1.zip,zip,8.12 MB,8.12,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE-II_S4C1_Image_Data_All_JPEGs_part2.zip,zip,8.01 MB,8.01,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE-II_S4C1_Image_Data_All_JPEGs_part3.zip,zip,8.02 MB,8.02,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE_II_S4C1_Image_Data_jpegs2png_icmad_part3.zip,zip,115.25 MB,115.25,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE_II_S4C1_Image_Data_jpegs2png_icmad_part1.zip,zip,117.08 MB,117.08,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE_II_S4C1_Image_Data_jpegs2png_icmad_part2.zip,zip,115.25 MB,115.25,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE-II_S4C1_Image_Data_All_JPEGs_Mapped_part2.zip,zip,10.54 MB,10.54,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE-II_S4C1_Image_Data_All_JPEGs_Mapped_part3.zip,zip,10.53 MB,10.53,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C1,PSI-99_Raw Data_SAFFIRE-II_S4C1_Image_Data_All_JPEGs_Mapped_part1.zip,zip,10.77 MB,10.77,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE_II_S4C2_DistortionGrids_Sample_ROI.zip,zip,110.71 KB,0.108,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE_II_S4C2_Image_Data_RAW2TIFF.zip,zip,72.21 MB,72.21,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE-II_S4C2_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,12.41 KB,0.012,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE-II_S4C2_Image_Data_RAW2TIFF_Maped.zip,zip,117.95 MB,117.95,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE-II_S4C2_Image_Data_RAW2TIFF_Mapped_ICMAD.zip,zip,140.4 MB,140.4,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE_II_S4C2_Image_Data_All_JPEGS_part2.zip,zip,20.2 MB,20.2,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE-II_S4C2_Image_Data_All_JPEGs_part3.zip,zip,19.82 MB,19.82,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE_II_S4C2_Image_Data_All_JPEGs_part1.zip,zip,19.9 MB,19.9,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE-II_S4C2_Image_Data_jpegs2png_icmad_part2.zip,zip,347.74 MB,347.74,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE-II_S4C2_Image_Data_jpegs2png_icmad_part3.zip,zip,340.44 MB,340.44,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE-II_S4C2_Image_Data_jpegs2png_icmad_part1.zip,zip,341.79 MB,341.79,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE-II_S4C2_Image_Data_All-JPEGs_Mapped_part2.zip,zip,33.99 MB,33.99,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE-II_S4C2_Image_Data_All-JPEGs_Mapped_part1.zip,zip,33.58 MB,33.58,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S4C2,PSI-99_Raw Data_SAFFIRE-II_S4C2_Image_Data_All-JPEGs_Mapped_part3.zip,zip,33.58 MB,33.58,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE_II_S5C1_DistortionGrids_Sample-ROI.zip,zip,103.18 KB,0.101,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE_II_S5C1_Image_Data_RAW2TIFF.zip,zip,45.99 MB,45.99,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE-II_S5C1_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,9.6 KB,0.009,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE-II_S5C1_Image_Data_RAW2TIFF_Mapped.zip,zip,107.98 MB,107.98,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE-II_S5C1_Image_Data_RAW2TIFF_Mapped_ICMAD.zip,zip,120.45 MB,120.45,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE-II_S5C1_Image_Data_All_JPEGS_part1.zip,zip,11.72 MB,11.72,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE-II_S5C1_Image_Data_All_JPEGS_part2.zip,zip,20.32 MB,20.32,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE_II_S5C1_Image_Data_jpegs2png_icmad_part1.zip,zip,177.54 MB,177.54,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE_II_S5C1_Image_Data_jpegs2png_icmad_part2.zip,zip,326.85 MB,326.85,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE-II_S5C1_Image_Data_All_JPEGs_Mapped_part2.zip,zip,30.59 MB,30.59,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C1,PSI-99_Raw Data_SAFFIRE-II_S5C1_Image_Data_All_JPEGs_Mapped_part1.zip,zip,18.03 MB,18.03,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE_II_Data Package Sensor Telemetry,PSI-99_Raw Data_SaffireIIStitchedCO2V7.pdf,pdf,25.34 KB,0.025,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE_II_Data Package Sensor Telemetry,PSI-99_Raw Data_SFS-W-009_MFB340-Saffire-2 SIBAL samples-Gas phase TC height nonconformance.pdf,pdf,19.58 KB,0.019,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE_II_Data Package Sensor Telemetry,PSI-99_Raw Data_Saffire-II Telemetry Data.xlsx,xlsx,39.55 MB,39.55,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S1,PSI-99_Raw Data_Saffire-II Sample 1 TM Graphs.docx,docx,831.94 KB,0.812,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S1,PSI-99_Raw Data_Saffire Sensor Data Sample 1.xlsx,xlsx,13.18 MB,13.18,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S1,PSI-99_Raw Data_Saffire-II Sample 9 TM Graphs.docx,docx,900.75 KB,0.88,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S2,PSI-99_Raw Data_Saffire-II Sample 2 TM Graphs.docx,docx,746.27 KB,0.729,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S2,PSI-99_Raw Data_Saffire Sensor Data Sample 2.xlsx,xlsx,16.76 MB,16.76,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S3,PSI-99_Raw Data_Saffire-II Sample 3 TM Graphs.docx,docx,803.68 KB,0.785,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S3,PSI-99_Raw Data_Saffire Sensor Data Sample 3.xlsx,xlsx,16.71 MB,16.71,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S4,PSI-99_Raw Data_Saffire-II Sample 4 TM Graphs.docx,docx,828.78 KB,0.809,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S4,PSI-99_Raw Data_Saffire Sensor Data Sample 4.xlsx,xlsx,16.7 MB,16.7,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S5,PSI-99_Raw Data_Saffire-II Sample 5 TM Graphs.docx,docx,762.89 KB,0.745,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S5,PSI-99_Raw Data_Saffire Sensor Data Sample 5.xlsx,xlsx,11.71 MB,11.71,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S6,PSI-99_Raw Data_Saffire-II Sample 6 TM Graphs.docx,docx,801.86 KB,0.783,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S6,PSI-99_Raw Data_Saffire Sensor Data Sample 6.xlsx,xlsx,11.53 MB,11.53,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S7,PSI-99_Raw Data_Saffire-II Sample 7 TM Graphs.docx,docx,907.53 KB,0.886,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S7,PSI-99_Raw Data_Saffire Sensor Data Sample 7.xlsx,xlsx,20.43 MB,20.43,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S8,PSI-99_Raw Data_Saffire-II Sample 8 TM Graphs.docx,docx,817.69 KB,0.799,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S8,PSI-99_Raw Data_Saffire Sensor Data Sample 8.xlsx,xlsx,22.5 MB,22.5,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/Data Package Sensor Telemetry/SAFFIRE_II_S9,PSI-99_Raw Data_Saffire Sensor Data Sample 9.xlsx,xlsx,31.34 MB,31.34,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE-II_S5C2_DistortionGrids_Sample_ROI.zip,zip,141.8 KB,0.138,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE_II_S5C2_Image_Data_RAW2TIFF.zip,zip,72.63 MB,72.63,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE-II_S5C2_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,12.09 KB,0.012,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE-II_S5C2_Image_Data_RAW2TIFF_Mapped.zip,zip,129.39 MB,129.39,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE-II_S5C2_Image_Data_RAW2TIFF_Mapped_ICMAD.zip,zip,143.98 MB,143.98,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE_II_S5C2_Image_Data_All_JPEGs_part1.zip,zip,14.98 MB,14.98,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE_II_S5C2_Image_Data_All_JPEGs_part2.zip,zip,27.5 MB,27.5,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE_II_S5C2_Image_Data_jpegs2png_icmad_part2.zip,zip,424.55 MB,424.55,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE_II_S5C2_Image_Data_jpegs2png_icmad_part1.zip,zip,216.3 MB,216.3,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE-II_S5C2_Image_Data_All_JPEGs_Mapped_part1.zip,zip,21.45 MB,21.45,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S5C2,PSI-99_Raw Data_SAFFIRE-II_S5C2_Image_Data_All-JPEGs_Mapped_part2.zip,zip,36.82 MB,36.82,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE_II_S9C1_DistortionGrids_ROI.zip,zip,208.69 KB,0.204,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_DistortionGrids_Samples_ROI_Mapped JPEGS.zip,zip,14.79 KB,0.014,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE_II_S9C1_Illustrative_Images.zip,zip,21.22 KB,0.021,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_part3.zip,zip,13.2 MB,13.2,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_part4.zip,zip,14.08 MB,14.08,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_part5.zip,zip,14.52 MB,14.52,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_part6.zip,zip,17.32 MB,17.32,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_part1.zip,zip,12.56 MB,12.56,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_part2.zip,zip,12.89 MB,12.89,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE_II_S9C1_Image_Data_RAW2TIFF.zip,zip,335.38 MB,335.38,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_Mapped_part3.zip,zip,19.12 MB,19.12,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_Mapped_part4.zip,zip,20.37 MB,20.37,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_Mapped_part5.zip,zip,20.86 MB,20.86,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_Mapped_part6.zip,zip,23.58 MB,23.58,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_Mapped_part1.zip,zip,18.11 MB,18.11,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_All_JPEGs_Mapped_part2.zip,zip,18.67 MB,18.67,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_RAW2TIFF_Mapped_jpegs.zip,zip,15.27 MB,15.27,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S9C1,PSI-99_Raw Data_SAFFIRE-II_S9C1_Image_Data_RAW2TIFF_Mapped_ICMAD_jpegs.zip,zip,30.03 MB,30.03,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE_II_S8C1_DistortionGrids_ROI.zip,zip,201.72 KB,0.197,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,14.41 KB,0.014,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_20161207_-_Overlap_verification_S8C1.zip,zip,19.78 KB,0.019,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_Image_Data_All_JPEGs_part2.zip,zip,13.08 MB,13.08,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_Image_Data_All_JPEGs_part3.zip,zip,12.51 MB,12.51,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_Image_Data_All_JPEGs_part4.zip,zip,19.58 MB,19.58,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_Image_Data_All_JPEGs_part1.zip,zip,13.08 MB,13.08,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE_II_S8C1_Image_Data_RAW2TIFF.zip,zip,441.93 MB,441.93,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_Image_Data_All-JPEGs_Mapped_part3.zip,zip,18.79 MB,18.79,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_Image_Data_All-JPEGs_Mapped_part4.zip,zip,26.99 MB,26.99,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_Image_Data_All-JPEGs_Mapped_part1.zip,zip,19.49 MB,19.49,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_Image_Data_All-JPEGs_Mapped_part2.zip,zip,19.32 MB,19.32,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_Image_Data_RAW2TIFF_Mapped.zip,zip,849.68 MB,849.68,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S8C1,PSI-99_Raw Data_SAFFIRE-II_S8C1_Image_Data_RAW2TIFF_Mapped_ICMAD.zip,zip,934.07 MB,934.07,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE_II_S6C1_DistortionGrids_Sample_ROI.zip,zip,129.62 KB,0.127,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE-II_S6C1_Image_Data_All_JPEGs_part1.zip,zip,13.62 MB,13.62,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE-II_S6C1_Image_Data_All_JPEGS_part2.zip,zip,21.93 MB,21.93,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE-II_S6C1_Image_Data_jpegs2pnc_icmad_part1.zip,zip,216.41 MB,216.41,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE-II_S6C1_Image_Data_jpegs2pnc_icmad_part2.zip,zip,362.81 MB,362.81,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE_II_S6C1_Image_Data_RAW2TIFF.zip,zip,43.48 MB,43.48,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE-II_S6C1_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,14.46 KB,0.014,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE-II_S6C1_Image_Data_All-JPEGs_Mapped_part1.zip,zip,24.18 MB,24.18,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE-II-S6C1_Image_Data_All_JPEGs_Mapped_part2.zip,zip,38.05 MB,38.05,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE-II_S6C1_Image_Data_RAW2TIFF_Mapped.zip,zip,118.64 MB,118.64,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE-II_S6C1_Image_Data_RAW2TIFF_Mapped_ICMAD.zip,zip,134.06 MB,134.06,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C1,PSI-99_Raw Data_SAFFIRE-II_S6C1_Image_Data_RAW2TIFF_Mapped_v2_ICMAD.zip,zip,130.77 MB,130.77,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE_II_S6C2_DistortionGrids_Sample_ROI.zip,zip,167.41 KB,0.163,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE_II_S6C2_Image_Data_All_JPEGs_part1.zip,zip,15.41 MB,15.41,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE_II_S6C2_Image_Data_All_JPEGs_part2.zip,zip,25.6 MB,25.6,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE-II_S6C2_Data_jpegs2png_icmad_part1.zip,zip,248.89 MB,248.89,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE-II_S6C2_Data_jpegs2png_icmad_part2.zip,zip,399.5 MB,399.5,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE_II_S6C2_Image_Data_RAW2TIFF.zip,zip,56.86 MB,56.86,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE-II_S6C2_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,10.83 KB,0.011,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE-II_S6C2_Image_Data_All_JPEGs_Mapped_part1.zip,zip,20.34 MB,20.34,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE-II_S6C2_Image_Data_All_JPEGs_Mapped_part2.zip,zip,29.96 MB,29.96,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE-II_S6C2_Image_Data_RAW2TIFF_Mapped.zip,zip,101.09 MB,101.09,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S6C2,PSI-99_Raw Data_SAFFIRE-II_S6C2_Image_Data_RAW2TIFF-Mapped_ICMAD.zip,zip,111.7 MB,111.7,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE_II_S7C1_DistortionGrids_ROI.zip,zip,143.21 KB,0.14,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_Image_Data_All_JPEGs_part1.zip,zip,13.04 MB,13.04,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_Image_Data_All_JPEGs_part2.zip,zip,23.61 MB,23.61,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_Image_Data_All_JPEGs_part4.zip,zip,17.93 MB,17.93,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_Image_Data_All_JPEGs_part3.zip,zip,24.42 MB,24.42,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE_II_S7C1_Image_Data_RAW2TIFF.zip,zip,55.05 MB,55.05,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_DistortionGrids_Sample_ROI_Mapped JPEGS.zip,zip,11.65 KB,0.011,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_Image_Data_All_JPEGs_Mapped_part2.zip,zip,31.49 MB,31.49,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_Image_Data_All_JPEGs_Mapped_part3.zip,zip,32.62 MB,32.62,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_Image_Data_All_JPEGs_Mapped_part4.zip,zip,23.84 MB,23.84,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_Image_Data_All_JPEGs_Mapped_part1.zip,zip,18.8 MB,18.8,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_Image_Data_RAW2TIFF_Mapped.zip,zip,110.25 MB,110.25,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Raw Data/Reduced Gravity/SAFFIRE-II S7C1,PSI-99_Raw Data_SAFFIRE-II_S7C1_Image_Data_RAW2TIFF_Mapped_ICMAD.zip,zip,122.2 MB,122.2,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Science Documents,PSI-99_Science Documents_SAFFIRE-II_Image_Directory_Nomenclature_v3.0.pdf,pdf,737.54 KB,0.72,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Science Documents,PSI-99_Science Documents_SAFFIRE-II_MergeResult-jpeg_v5_Final.xlsx,xlsx,19.86 MB,19.86,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Science Documents,"PSI-99_Science Documents_SAFFIRE Objectives, Development and Status.pdf",pdf,181.89 KB,0.178,Thu Jun 05 2025
+PSI-99,SAFFIRE-II,Science Documents,PSI-99_Science Documents_SAFFIRE-II Readme.docx,docx,131.27 KB,0.128,Thu Jun 05 2025
