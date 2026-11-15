@@ -26,7 +26,7 @@ const NAV = [
     label: "Assess",
     items: [
       { href: "/", title: "Habitat check", icon: ShieldCheckIcon },
-      { href: "/map", title: "Flammability map", icon: ChartScatterIcon },
+      { href: "/map", title: "Flammability heat map", icon: ChartScatterIcon },
     ],
   },
   {

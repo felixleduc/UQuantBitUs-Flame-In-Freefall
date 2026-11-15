@@ -1,9 +1,7 @@
 "use client"
 
-import * as React from "react"
-import { FlaskConicalIcon } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
-import { NothingFound } from "@/components/nothing-found"
 import { PageHeader } from "@/components/page-header"
 import { ScenarioBar } from "@/components/scenario-bar"
 import { useScenario } from "@/components/scenario-provider"
@@ -14,30 +12,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { tests as allTests, type Test } from "@/lib/data"
 import { flownTests } from "@/lib/evidence"
+import { model } from "@/lib/model"
 import { MATERIALS } from "@/lib/scenario"
-import { cn } from "@/lib/utils"
-
-// Air-flow ranges, cm/s: narrow where most tests were flown (around 5 and 10 cm/s)
-const FLOWS = [
-  { from: 0, to: 2, label: "0 to 2" },
-  { from: 2, to: 5, label: "2 to 5" },
-  { from: 5, to: 8, label: "5 to 8" },
-  { from: 8, to: 12, label: "8 to 12" },
-  { from: 12, to: 20, label: "12 to 20" },
-  { from: 20, to: Infinity, label: "20 +" },
-]
-const flowIndex = (flow: number) =>
-  FLOWS.findIndex((f) => flow >= f.from && flow < f.to)
 
 const one = (n: number) => Math.round(n * 10) / 10
+const MAP_SCALE = 32
+const MAP_WIDTH = (model.flow.length - 1) * MAP_SCALE + 1
+const MAP_HEIGHT = (model.o2.length - 1) * MAP_SCALE + 1
 
 // Every solid was flown near sea-level pressure: stated once, it is not a variable here
 const pressures = allTests.flatMap((t) =>
@@ -45,13 +28,221 @@ const pressures = allTests.flatMap((t) =>
 )
 const PRESSURE = `${Math.min(...pressures)} to ${Math.round(Math.max(...pressures) * 100) / 100} atm`
 
-// Blue when every test went out, orange when every test kept burning, grey when split.
-// The count is always printed: colour only helps.
-function cellColor(burned: number, total: number) {
-  const share = burned / total
-  const strength = Math.round(Math.abs(share - 0.5) * 2 * 70)
-  const hue = share > 0.5 ? "var(--chart-2)" : "var(--chart-1)"
-  return `color-mix(in oklch, ${hue} ${strength}%, var(--muted))`
+type Grid = number[][]
+type HeatPoint = {
+  o2: number
+  flow: number
+  probability: number
+  low: number
+  high: number
+}
+
+function sampleGrid(grid: Grid, row: number, column: number) {
+  const y = Math.min(Math.max(row, 0), grid.length - 1)
+  const x = Math.min(Math.max(column, 0), grid[0].length - 1)
+  const y0 = Math.floor(y)
+  const x0 = Math.floor(x)
+  const y1 = Math.min(y0 + 1, grid.length - 1)
+  const x1 = Math.min(x0 + 1, grid[0].length - 1)
+  const fy = y - y0
+  const fx = x - x0
+  const top = grid[y0][x0] * (1 - fx) + grid[y0][x1] * fx
+  const bottom = grid[y1][x0] * (1 - fx) + grid[y1][x1] * fx
+  return top * (1 - fy) + bottom * fy
+}
+
+function gridPosition(axis: number[], value: number) {
+  const clamped = Math.min(Math.max(value, axis[0]), axis[axis.length - 1])
+  const lower = Math.min(
+    Math.max(
+      axis.findLastIndex((point) => point <= clamped),
+      0
+    ),
+    axis.length - 2
+  )
+  return lower + (clamped - axis[lower]) / (axis[lower + 1] - axis[lower])
+}
+
+function axisValue(axis: number[], position: number) {
+  const lower = Math.floor(position)
+  const upper = Math.min(lower + 1, axis.length - 1)
+  const fraction = position - lower
+  return axis[lower] * (1 - fraction) + axis[upper] * fraction
+}
+
+function HeatMap({
+  materialModel,
+  o2Percent,
+  flowCmS,
+}: {
+  materialModel: (typeof model.materials)[string]
+  o2Percent: number
+  flowCmS: number
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [hovered, setHovered] = useState<HeatPoint>()
+  const o2Position = gridPosition(model.o2, o2Percent)
+  const flowPosition = gridPosition(model.flow, flowCmS)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const context = canvas?.getContext("2d")
+    if (!canvas || !context) return
+
+    const draw = () => {
+      const style = getComputedStyle(canvas)
+      context.fillStyle = style.getPropertyValue("--chart-1").trim()
+      context.fillRect(0, 0, 1, 1)
+      context.fillStyle = style.getPropertyValue("--chart-2").trim()
+      context.fillRect(1, 0, 1, 1)
+      const palette = context.getImageData(0, 0, 2, 1).data
+
+      const image = context.createImageData(MAP_WIDTH, MAP_HEIGHT)
+      for (let y = 0; y < MAP_HEIGHT; y += 1) {
+        const row =
+          ((MAP_HEIGHT - 1 - y) / (MAP_HEIGHT - 1)) * (model.o2.length - 1)
+        for (let x = 0; x < MAP_WIDTH; x += 1) {
+          const column = (x / (MAP_WIDTH - 1)) * (model.flow.length - 1)
+          const probability = sampleGrid(materialModel.p, row, column)
+          const offset = (y * MAP_WIDTH + x) * 4
+          for (let channel = 0; channel < 3; channel += 1) {
+            image.data[offset + channel] = Math.round(
+              palette[channel] * (1 - probability) +
+                palette[channel + 4] * probability
+            )
+          }
+          image.data[offset + 3] = 255
+        }
+      }
+      context.putImageData(image, 0, 0)
+    }
+
+    draw()
+    const themeObserver = new MutationObserver(draw)
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    })
+    return () => themeObserver.disconnect()
+  }, [materialModel])
+
+  function showPoint(clientX: number, clientY: number, rect: DOMRect) {
+    const column =
+      ((clientX - rect.left) / rect.width) * (model.flow.length - 1)
+    const row =
+      model.o2.length -
+      1 -
+      ((clientY - rect.top) / rect.height) * (model.o2.length - 1)
+    setHovered({
+      o2: axisValue(model.o2, row),
+      flow: axisValue(model.flow, column),
+      probability: sampleGrid(materialModel.p, row, column),
+      low: sampleGrid(materialModel.low, row, column),
+      high: sampleGrid(materialModel.high, row, column),
+    })
+  }
+
+  return (
+    <>
+      <div className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-2 gap-y-2">
+        <span className="text-right text-xs text-muted-foreground">O2 %</span>
+        <div className="relative h-4 text-xs text-muted-foreground tabular-nums">
+          {model.flow.map((flow, index) => (
+            <span
+              key={flow}
+              className="absolute top-0"
+              style={{
+                left: `${(index / (model.flow.length - 1)) * 100}%`,
+                transform:
+                  index === 0
+                    ? "none"
+                    : index === model.flow.length - 1
+                      ? "translateX(-100%)"
+                      : "translateX(-50%)",
+              }}
+            >
+              {flow}
+            </span>
+          ))}
+        </div>
+        <div
+          aria-hidden="true"
+          className="flex flex-col justify-between text-right text-xs text-muted-foreground tabular-nums"
+        >
+          {[...model.o2].reverse().map((o2) => (
+            <span key={o2}>{o2}</span>
+          ))}
+        </div>
+        <div className="relative">
+          <canvas
+            ref={canvasRef}
+            aria-label="Continuous heat map of predicted sustained-burning probability by oxygen and air flow"
+            className="block h-auto w-full rounded-md"
+            height={MAP_HEIGHT}
+            onPointerLeave={() => setHovered(undefined)}
+            onPointerMove={(event) =>
+              showPoint(
+                event.clientX,
+                event.clientY,
+                event.currentTarget.getBoundingClientRect()
+              )
+            }
+            role="img"
+            width={MAP_WIDTH}
+          />
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background bg-foreground shadow"
+            style={{
+              left: `${(flowPosition / (model.flow.length - 1)) * 100}%`,
+              top: `${(1 - o2Position / (model.o2.length - 1)) * 100}%`,
+            }}
+          />
+        </div>
+      </div>
+
+      <p aria-live="polite" className="min-h-5 text-xs text-muted-foreground">
+        {hovered
+          ? `${one(hovered.o2)}% O2 · ${one(hovered.flow)} cm/s: ${Math.round(hovered.probability * 100)}% predicted chance of sustained burning (likely range ${Math.round(hovered.low * 100)}–${Math.round(hovered.high * 100)}%)`
+          : "Hover over the heat map to inspect a prediction and its likely range."}
+      </p>
+
+      <table className="sr-only">
+        <caption>
+          Predicted probability of sustained burning and likely range by oxygen
+          and air flow
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">O2 %</th>
+            {model.flow.map((flow) => (
+              <th key={flow} scope="col">
+                {flow} cm/s
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {[...model.o2].reverse().map((o2, displayRow) => {
+            const row = model.o2.length - 1 - displayRow
+            return (
+              <tr key={o2}>
+                <th scope="row">{o2}</th>
+                {model.flow.map((flow, column) => (
+                  <td key={flow}>
+                    {Math.round(materialModel.p[row][column] * 100)}% predicted;
+                    likely range{" "}
+                    {Math.round(materialModel.low[row][column] * 100)}–
+                    {Math.round(materialModel.high[row][column] * 100)}%
+                  </td>
+                ))}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </>
+  )
 }
 
 function Limit({ label, test }: { label: string; test: Test }) {
@@ -71,19 +262,14 @@ function Limit({ label, test }: { label: string; test: Test }) {
 export default function MapPage() {
   const { scenario } = useScenario()
   const material = MATERIALS[scenario.material].label
-  const ofMaterial = flownTests(scenario.material).filter(
+  const materialModel =
+    model.materials[scenario.material] ?? model.materials.PMMA
+  const flightTests = flownTests(scenario.material).filter(
     (t) => t.flow_cm_s !== undefined
   )
-  const shapes = [...new Set(ofMaterial.map((t) => t.geometry ?? "unknown"))]
-  // The shape filter resets when the material changes
-  const [choice, setChoice] = React.useState({ material: "", shape: "all" })
-  const shape = choice.material === scenario.material ? choice.shape : "all"
-  const flown = ofMaterial.filter(
-    (t) => shape === "all" || (t.geometry ?? "unknown") === shape
-  )
 
-  const burned = flown.filter((t) => t.sustained)
-  const out = flown.filter((t) => !t.sustained)
+  const burned = flightTests.filter((t) => t.sustained)
+  const out = flightTests.filter((t) => !t.sustained)
   const lowestBurning = burned.reduce<Test | undefined>(
     (low, t) => (!low || t.o2_percent! < low.o2_percent! ? t : low),
     undefined
@@ -92,199 +278,78 @@ export default function MapPage() {
     (high, t) => (!high || t.o2_percent! > high.o2_percent! ? t : high),
     undefined
   )
-
-  // One row per point of oxygen, highest first
-  const o2s = flown.map((t) => Math.floor(t.o2_percent!))
-  const rows = o2s.length
-    ? Array.from(
-        { length: Math.max(...o2s) - Math.min(...o2s) + 1 },
-        (_, i) => Math.max(...o2s) - i
-      )
-    : []
-  const cell = (o2: number, f: number) =>
-    flown.filter(
-      (t) => Math.floor(t.o2_percent!) === o2 && flowIndex(t.flow_cm_s!) === f
-    )
-  const yourRow = Math.floor(scenario.o2Percent)
-  const yourFlow = flowIndex(scenario.flowCmS)
-
   return (
     <>
-      <PageHeader title="Flammability map" />
+      <PageHeader title="Flammability heat map" />
       <ScenarioBar />
       <div className="flex flex-col gap-4 p-4 md:p-8">
         <Card className="min-w-0">
           <CardHeader>
             <CardTitle>
-              {material}: flight tests by oxygen and air flow
+              {material}: predicted chance of sustained burning on{" "}
+              {materialModel.geometry}
             </CardTitle>
-            {shapes.length > 1 && (
-              <CardAction>
-                <ToggleGroup
-                  type="single"
-                  variant="outline"
-                  size="sm"
-                  value={shape}
-                  onValueChange={(v) =>
-                    v && setChoice({ material: scenario.material, shape: v })
-                  }
-                  className="flex-wrap"
-                  aria-label="Sample shape"
-                >
-                  <ToggleGroupItem value="all">All shapes</ToggleGroupItem>
-                  {shapes.map((s) => (
-                    <ToggleGroupItem key={s} value={s}>
-                      {s.charAt(0).toUpperCase() + s.slice(1)}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-              </CardAction>
-            )}
+            <CardAction className="text-xs text-muted-foreground">
+              Model trained on {materialModel.tests} flight tests
+            </CardAction>
           </CardHeader>
           <CardContent className="flex flex-col gap-6 overflow-x-auto">
-            {rows.length === 0 ? (
-              <NothingFound
-                icon={FlaskConicalIcon}
-                title={`No flight test of ${material}`}
-                reason="No test of this material has both an oxygen level and an air flow recorded."
-              />
-            ) : (
-              <>
-                {(lowestBurning || highestOut) && (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {lowestBurning && (
-                      <Limit
-                        label="Lowest oxygen where a flame kept burning"
-                        test={lowestBurning}
-                      />
-                    )}
-                    {highestOut && (
-                      <Limit
-                        label="Highest oxygen where a flame went out"
-                        test={highestOut}
-                      />
-                    )}
-                  </div>
+            {flightTests.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No flight tests are available for comparison; the heat map shows
+                model estimates.
+              </p>
+            ) : null}
+
+            {(lowestBurning || highestOut) && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {lowestBurning && (
+                  <Limit
+                    label="Lowest oxygen where a flame kept burning"
+                    test={lowestBurning}
+                  />
                 )}
-
-                <table className="w-full min-w-[560px] border-separate border-spacing-1 text-sm">
-                  <thead>
-                    <tr className="text-xs text-muted-foreground">
-                      <th className="w-20 text-left font-normal">O2 \ flow</th>
-                      {FLOWS.map((f) => (
-                        <th key={f.label} className="font-normal">
-                          {f.label} cm/s
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((o2) => (
-                      <tr key={o2}>
-                        <th className="text-left font-normal text-muted-foreground tabular-nums">
-                          {o2} %
-                        </th>
-                        {FLOWS.map((f, i) => {
-                          const tests = cell(o2, i)
-                          const kept = tests.filter((t) => t.sustained).length
-                          const yours = o2 === yourRow && i === yourFlow
-                          const ring = yours && "ring-2 ring-foreground"
-                          if (tests.length === 0)
-                            return (
-                              <td
-                                key={f.label}
-                                className={cn(
-                                  "h-10 rounded-md text-center text-muted-foreground",
-                                  ring
-                                )}
-                              >
-                                ·
-                              </td>
-                            )
-                          return (
-                            <td key={f.label} className="h-10 p-0">
-                              <HoverCard openDelay={80} closeDelay={80}>
-                                <HoverCardTrigger asChild>
-                                  <button
-                                    type="button"
-                                    className={cn(
-                                      "size-full rounded-md font-medium tabular-nums",
-                                      ring
-                                    )}
-                                    style={{
-                                      backgroundColor: cellColor(
-                                        kept,
-                                        tests.length
-                                      ),
-                                    }}
-                                    aria-label={`${o2} % O2, ${f.label} cm/s: ${kept} of ${tests.length} kept burning`}
-                                  >
-                                    {kept} / {tests.length}
-                                  </button>
-                                </HoverCardTrigger>
-                                <HoverCardContent className="w-72">
-                                  <p className="text-sm font-medium">
-                                    {kept} of {tests.length} kept burning
-                                  </p>
-                                  <p className="mb-2 text-xs text-muted-foreground">
-                                    {o2} % O2, {f.label} cm/s
-                                  </p>
-                                  <ul className="flex flex-col gap-1 text-xs">
-                                    {tests.slice(0, 6).map((t) => (
-                                      <li
-                                        key={`${t.psi_id}-${t.test_id}`}
-                                        className="flex justify-between gap-3"
-                                      >
-                                        <span>
-                                          {t.investigation} {t.test_id}
-                                        </span>
-                                        <span className="text-muted-foreground">
-                                          {t.sustained
-                                            ? "kept burning"
-                                            : "went out"}
-                                        </span>
-                                      </li>
-                                    ))}
-                                    {tests.length > 6 && (
-                                      <li className="text-muted-foreground">
-                                        and {tests.length - 6} more
-                                      </li>
-                                    )}
-                                  </ul>
-                                </HoverCardContent>
-                              </HoverCard>
-                            </td>
-                          )
-                        })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <span
-                      className="size-3 rounded-sm"
-                      style={{ backgroundColor: cellColor(0, 1) }}
-                    />
-                    All went out
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span
-                      className="size-3 rounded-sm"
-                      style={{ backgroundColor: cellColor(1, 1) }}
-                    />
-                    All kept burning
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="size-3 rounded-sm ring-2 ring-foreground" />
-                    Your scenario ({scenario.o2Percent} % O2, {scenario.flowCmS}{" "}
-                    cm/s)
-                  </span>
-                  <span className="ml-auto">All tests flown at {PRESSURE}</span>
-                </div>
-              </>
+                {highestOut && (
+                  <Limit
+                    label="Highest oxygen where a flame went out"
+                    test={highestOut}
+                  />
+                )}
+              </div>
             )}
+
+            <div className="min-w-[920px]">
+              <p className="mb-2 text-right text-xs text-muted-foreground">
+                Air flow (cm/s)
+              </p>
+              <HeatMap
+                materialModel={materialModel}
+                o2Percent={scenario.o2Percent}
+                flowCmS={scenario.flowCmS}
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-2">
+                Lower chance
+                <span
+                  className="h-2 w-32 rounded-full"
+                  style={{
+                    background:
+                      "linear-gradient(to right, var(--chart-1), var(--chart-2))",
+                  }}
+                />
+                Higher chance
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="size-3 rounded-full border-2 border-background bg-foreground shadow" />
+                Your scenario ({scenario.o2Percent} % O2, {scenario.flowCmS}{" "}
+                cm/s)
+              </span>
+              <span className="ml-auto">
+                Flight tests flown at {PRESSURE}; model does not vary pressure
+              </span>
+            </div>
           </CardContent>
         </Card>
       </div>

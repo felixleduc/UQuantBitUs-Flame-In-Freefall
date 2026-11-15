@@ -13,7 +13,7 @@ bun run build      # production build (all pages are static)
 | Page | Question it answers | Data |
 |---|---|---|
 | Habitat check (`/`) | Would this material keep burning in this habitat, and which change would stop it? | trained model + closest real flight tests + report findings |
-| Flammability map (`/map`) | Where did flames keep burning, by oxygen and air flow? | real tests |
+| Flammability heat map (`/map`) | How likely is a flame to keep burning, by oxygen and air flow? | model predictions + real tests |
 | Space tests (`/tests`) | Every solid-material test flown | real |
 | Findings (`/findings`) | What the NASA reports concluded, with quotes | real |
 | Coverage (`/coverage`) | How much evidence stands behind each material | real |
