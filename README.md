@@ -25,3 +25,33 @@ disk are skipped. To split it between several machines, each one adds `--part 1/
 
 Files land in `data/raw/PSI-<id>_<name>/`, in the folders PSI uses. What is kept and what is left
 out is decided by the `USEFUL` rules in `src/list_psi_files.py`.
+
+## Unified tables (`data/processed/`, committed)
+
+- `investigations.csv`: one row per PSI investigation (objective, hypothesis, dates, PI, topics).
+- `tests.csv`: one row per test with the same columns everywhere (material, geometry, size, O2,
+  pressure, flow, outcome...), joined to the above on `psi_id`. Measurement columns that only some
+  investigations have: final O2 and peak heat flux and sample temperature (solids), extinction
+  diameter, burning rate and cool flame (droplets), flame and smoke point length, lifted flame and
+  fuel percent (gas flames), smoke particle diameter, number and mass (smoke detection).
+- `context.csv`: facts read in reports and crew notes, each with its exact quote, file and PDF page.
+  Rows with a `test_id` fill or correct that test in `tests.csv`; the others are findings for the
+  whole investigation (oxygen limits, extinction flows).
+
+`tests.csv` and `investigations.csv` are rebuilt from `data/raw/` and `context.csv` with
+(about 1 minute; needs `pdftotext` from poppler-utils):
+
+```bash
+uv run python src/unify_data.py
+```
+
+Values come, in order of priority: experimental tables, then the per-test files read by
+`src/readers/` (one module per group of investigations), then `context.csv`.
+
+Read before analysing:
+- `burn_time_s` for ACME flames includes a few seconds of igniter time; when `outcome` is
+  "flow terminated" it is the planned test length, not a natural burn.
+- `o2_percent` is the O2 around the flame, except for inverse flames (Flame Design, CFI-G) where
+  it is the O2 of the burner jet.
+- FLEX-2 tests have conditions but no outcome; BASS-II has no pressure; SAME, SAME-R and DAFT are
+  smoke tests (heated samples, no flame).
