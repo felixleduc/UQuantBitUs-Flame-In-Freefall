@@ -5,7 +5,7 @@ import re
 
 try:
     import pandas as pd
-except ImportError:  # pragma: no cover - optional dependency for CSV export
+except ImportError:  
     pd = None
 
 from pydantic import BaseModel, Field
@@ -50,7 +50,7 @@ def extraire_valeur(motif_regex: str, texte: str) -> float | None:
 
 
 def analyser_rapport(texte: str, nom_fichier: str) -> dict:
-    # 1. Identification du type de combustible
+    
     fuel_type = "solid"
     if re.search(r"gas|burner|jet", texte, re.IGNORECASE):
         fuel_type = "gas jet"
@@ -82,7 +82,7 @@ def analyser_rapport(texte: str, nom_fichier: str) -> dict:
     outcome = "success" if ignited == "yes" else "extinguished"
 
     vitesse = extraire_valeur(r"(\d+(?:\.\d+)?)\s*mm/s", texte)
-    v_propagation = vitesse / 1000.0 if vitesse else None  # conversion en m/s si besoin
+    v_propagation = vitesse / 1000.0 if vitesse else None  
 
     return {
         "nom_test": nom_fichier,
@@ -104,7 +104,7 @@ def analyser_rapport(texte: str, nom_fichier: str) -> dict:
 
 def main() -> None:
     dossier_entree = "donnees_brutes"
-    dossier_sortie = "data/processed"  # Aligné sur le dossier attendu par le ML
+    dossier_sortie = "data/processed" 
     os.makedirs(dossier_entree, exist_ok=True)
     os.makedirs(dossier_sortie, exist_ok=True)
 
