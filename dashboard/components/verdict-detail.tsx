@@ -3,6 +3,7 @@
 import { InfoIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { model } from "@/lib/model"
 import {
   Popover,
   PopoverContent,
@@ -66,22 +67,31 @@ export function MethodPopover() {
           How is this computed?
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80">
+      <PopoverContent align="start" className="w-80 pb-5">
         <PopoverHeader>
           <PopoverTitle>Method</PopoverTitle>
           <PopoverDescription>
-            For now a demo model: a curve per material on oxygen, pressure and
-            ventilation. The trained model on NASA flight tests will replace it.
+            A logistic regression trained on {model.trained_on} solid-material
+            flight tests (BASS, BASS-II, Saffire), from material, sample shape,
+            oxygen and air flow.
           </PopoverDescription>
         </PopoverHeader>
         <ul className="mt-3 flex flex-col gap-1 text-sm text-muted-foreground">
-          <li>70 % or more: keeps burning.</li>
-          <li>30 to 70 %: borderline.</li>
-          <li>Under 30 %: goes out on its own.</li>
           <li>
-            The likely range widens when fewer flight tests are close to the
-            scenario.
+            Tested on held-out flights: ROC AUC {model.metrics.roc_auc} (0.5 is
+            chance), Brier {model.metrics.brier} against{" "}
+            {model.metrics.baseline_brier} for always guessing the average.
           </li>
+          <li>
+            Likely range: 5th to 95th percentile of 200 refits on resampled
+            data.
+          </li>
+          <li>
+            Pressure is not used: every test ran at{" "}
+            {model.pressure_range_atm[0]} to{" "}
+            {Math.round(model.pressure_range_atm[1] * 100) / 100} atm.
+          </li>
+          <li>70 % or more: keeps burning. Under 30 %: goes out.</li>
         </ul>
       </PopoverContent>
     </Popover>

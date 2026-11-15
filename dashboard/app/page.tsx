@@ -21,13 +21,12 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { MethodPopover, RangeBar } from "@/components/verdict-detail"
-import { burnProbability, safetyLevers } from "@/lib/demo-model"
+import { burnProbability, likelyRange, safetyLevers } from "@/lib/model"
 import {
   closestTests,
   evidenceFor,
   findingsAbout,
   flownTests,
-  likelyRange,
 } from "@/lib/evidence"
 import {
   HABITATS,
@@ -68,7 +67,7 @@ export default function HabitatCheckPage() {
   const evidence = evidenceFor(scenario)
   const reports = findingsAbout(scenario.material)
   const flown = flownTests(scenario.material)
-  const [low, high] = likelyRange(probability, evidence.level)
+  const [low, high] = likelyRange(scenario)
   const material = MATERIALS[scenario.material].label
   const habitat =
     HABITATS.find((h) => h.id === habitatId)?.phrase ?? "in this atmosphere"

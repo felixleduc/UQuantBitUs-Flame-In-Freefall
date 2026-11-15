@@ -70,7 +70,7 @@ function Findings() {
 
   return (
     <>
-      <PageHeader demo={false} title="Findings" />
+      <PageHeader title="Findings" />
       <div className="flex flex-col gap-4 p-4 md:p-8">
         <div className="flex flex-wrap items-start gap-3">
           <Select

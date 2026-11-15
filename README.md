@@ -177,5 +177,14 @@ hand, add a row to `context.csv` with its quote and source, then rebuild.
 
 ## Dashboard (`dashboard/`)
 
-Next.js app that reads `dashboard/data/*.json`, written from `data/processed/` by
-`uv run python src/export_dashboard_data.py`. See `dashboard/README.md` to run it.
+Next.js app that reads `dashboard/data/*.json`. To refresh them after `data/processed/` changes:
+
+```bash
+uv run python src/export_dashboard_data.py   # tests.json and findings.json
+uv run python ML.py                          # model.json: trains the model and prints its scores
+```
+
+`ML.py` trains a logistic regression on the 218 solid-material flight tests with a known
+outcome, oxygen and air flow: will a flame keep burning, from material, sample shape, oxygen and
+flow. Cross-validated ROC AUC 0.84 (0.5 is chance). Pressure is not an input because every solid
+was flown near 1 atm. See `dashboard/README.md` to run the site.

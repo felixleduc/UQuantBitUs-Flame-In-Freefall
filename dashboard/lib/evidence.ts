@@ -58,18 +58,6 @@ export function evidenceFor(s: Scenario): Evidence {
   }
 }
 
-// Demo uncertainty: the range widens as the flight evidence near the scenario thins out.
-const MARGIN: Record<Evidence["level"], number> = {
-  strong: 0.06,
-  limited: 0.12,
-  extrapolated: 0.25,
-}
-
-export function likelyRange(probability: number, level: Evidence["level"]) {
-  const m = MARGIN[level]
-  return [Math.max(0, probability - m), Math.min(1, probability + m)] as const
-}
-
 // Finding types an engineer sizing a habitat needs next to the prediction
 export const LIMIT_TYPES = [
   "Oxygen and pressure limits",

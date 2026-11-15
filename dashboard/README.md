@@ -12,8 +12,8 @@ bun run build      # production build (all pages are static)
 
 | Page | Question it answers | Data |
 |---|---|---|
-| Habitat check (`/`) | Would this material keep burning in this habitat, and which change would stop it? | demo model + closest real flight tests + report findings |
-| Flammability map (`/map`) | Where are the real tests, and where is the line between burning and going out? | real tests + demo model line |
+| Habitat check (`/`) | Would this material keep burning in this habitat, and which change would stop it? | trained model + closest real flight tests + report findings |
+| Flammability map (`/map`) | Where did flames keep burning, by oxygen and air flow? | real tests |
 | Space tests (`/tests`) | Every solid-material test flown | real |
 | Findings (`/findings`) | What the NASA reports concluded, with quotes | real |
 | Coverage (`/coverage`) | How much evidence stands behind each material | real |
@@ -24,5 +24,5 @@ The scenario (material, habitat, oxygen, pressure, ventilation) is shared by eve
 
 - `data/tests.json` and `data/findings.json` are written by `uv run python src/export_dashboard_data.py`
   (repository root) from `data/processed/`, and validated in `lib/data.ts`.
-- `lib/demo-model.ts` holds invented coefficients. Replace `burnProbability` with the trained model
-  (same inputs, a probability from 0 to 1) and remove the "Demo model" badges.
+- `data/model.json` is written by `uv run python ML.py` (repository root): the trained model's
+  predictions and likely ranges on a grid of oxygen and air flow per material, read by `lib/model.ts`.

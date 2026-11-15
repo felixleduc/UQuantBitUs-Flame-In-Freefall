@@ -110,7 +110,7 @@ export default function MapPage() {
 
   return (
     <>
-      <PageHeader demo={false} title="Flammability map" />
+      <PageHeader title="Flammability map" />
       <ScenarioBar />
       <div className="flex flex-col gap-4 p-4 md:p-8">
         <Card className="min-w-0">

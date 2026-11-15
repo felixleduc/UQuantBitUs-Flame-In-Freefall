@@ -1,4 +1,4 @@
-import type { Lever } from "@/lib/demo-model"
+import type { Lever } from "@/lib/model"
 import { pct } from "@/lib/scenario"
 import { cn } from "@/lib/utils"
 
