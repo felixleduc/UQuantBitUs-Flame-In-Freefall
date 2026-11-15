@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>NASA PSI · Tableau de bord comparatif multi-expériences</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --bg: #eef1f3; --surface: #ffffff; --ink: #13202b; --ink2: #405264; --muted: #66788a;
+  --line: #d6dde3; --grid: #e6ebef; --accent: #0a74b8; --burn: #c9502b; --band: #e3edf5;
+  --ok: #1d7a4d; --bad: #a8341f; --warn-bg: #fbf0e3; --warn-ink: #8a4b0f;
+  --cool: #6b4c9a; --smoke: #5a6b7c;
+  --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1419; --surface: #141d25; --ink: #e5ecf1; --ink2: #aebcc8; --muted: #8497a8;
+    --line: #26323c; --grid: #1e2a33; --accent: #3b94d9; --burn: #dd6c40; --band: #1b2a38;
+    --ok: #55c28a; --bad: #f08a73; --warn-bg: #2a2117; --warn-ink: #e6b373;
+    --cool: #a385d1; --smoke: #8fa3b5; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1419; --surface: #141d25; --ink: #e5ecf1; --ink2: #aebcc8; --muted: #8497a8;
+  --line: #26323c; --grid: #1e2a33; --accent: #3b94d9; --burn: #dd6c40; --band: #1b2a38;
+  --ok: #55c28a; --bad: #f08a73; --warn-bg: #2a2117; --warn-ink: #e6b373;
+  --cool: #a385d1; --smoke: #8fa3b5; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--sans);
+  padding-block: 24px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1140px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+.top-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 600 28px/1.15 var(--sans); margin: 6px 0 8px; letter-spacing: -.01em; }
+h2 { font: 600 16px/1.3 var(--sans); margin: 0 0 4px; }
+h3 { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+p { margin: 0; max-width: 75ch; color: var(--ink2); }
+.sub { color: var(--muted); font-size: 13px; }
+section { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 20px; min-width: 0; }
+
+/* Navigation & Contrôles */
+.nav-tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.tab-btn {
+  font: 500 13px var(--sans); color: var(--ink2); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 5px; padding: 8px 14px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; transition: all .15s ease;
+}
+.tab-btn:hover { background: var(--grid); color: var(--ink); }
+.tab-btn[aria-selected="true"] {
+  background: var(--band); color: var(--accent); border-color: var(--accent); font-weight: 600;
+}
+.tab-btn .badge {
+  font: 500 11px var(--mono); background: var(--grid); color: var(--ink2);
+  padding: 1px 6px; border-radius: 99px;
+}
+.tab-btn[aria-selected="true"] .badge { background: var(--accent); color: #fff; }
+
+.theme-btn {
+  font: 500 12px var(--mono); color: var(--ink2); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; cursor: pointer;
+}
+.theme-btn:hover { background: var(--grid); }
+
+/* KPI Strip */
+.kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px;
+}
+.kpi-card .k-val { font: 600 22px/1.2 var(--mono); color: var(--ink); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.kpi-card .k-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* Filtres & Chips */
+.filter-bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 14px; }
+.chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font: 500 12px var(--sans); color: var(--ink2); background: var(--grid);
+  border: 1px solid transparent; border-radius: 99px; padding: 4px 11px; cursor: pointer;
+}
+.chip:hover { border-color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--band); color: var(--accent); border-color: var(--accent); }
+
+select, input[type="search"] {
+  font: 400 13px var(--sans); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px;
+}
+
+/* Tableaux et Barres d'investigations */
+.inv-rows { display: flex; flex-direction: column; gap: 3px; }
+.inv-row {
+  display: grid; grid-template-columns: 74px minmax(0, 1.3fr) 110px minmax(0, 1.5fr) 110px 86px;
+  gap: 12px; align-items: center; width: 100%; text-align: left;
+  padding: 9px 10px; border-radius: 4px; border: 1px solid transparent; background: transparent;
+}
+.inv-row:hover { background: var(--grid); }
+.inv-row.selected { background: var(--band); border-color: var(--accent); }
+.inv-id { font: 500 12.5px var(--mono); color: var(--muted); }
+.inv-title b { font-weight: 600; color: var(--ink); display: block; }
+.inv-title span { font-size: 12px; color: var(--muted); }
+
+/* Grille de comparaison côte-à-côte */
+.comp-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 14px;
+}
+.comp-card {
+  border: 1px solid var(--line); border-radius: 6px; padding: 16px; background: var(--surface);
+  display: flex; flex-direction: column; gap: 12px; position: relative;
+}
+.comp-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; border-bottom: 1px solid var(--grid); padding-bottom: 10px; }
+.remove-btn {
+  font: 500 11px var(--mono); color: var(--muted); background: transparent; border: 1px solid var(--line);
+  border-radius: 4px; padding: 2px 6px; cursor: pointer;
+}
+.remove-btn:hover { color: var(--bad); border-color: var(--bad); }
+
+/* Composants hérités du style instrument de Claude */
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 12px 0 14px; font-size: 12.5px; color: var(--ink2); }
+.legend i { display: inline-block; width: 14px; height: 6px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.rows { display: flex; flex-direction: column; gap: 2px; }
+.row {
+  display: grid; grid-template-columns: 78px minmax(0,1.15fr) minmax(0,1.5fr) 100px; gap: 12px; align-items: center;
+  width: 100%; text-align: left; font: inherit; color: inherit; background: transparent; border: 0; border-radius: 4px;
+  padding: 8px 10px; cursor: pointer;
+}
+.row:hover { background: var(--grid); }
+.row[aria-pressed="true"] { background: var(--band); box-shadow: inset 3px 0 0 var(--accent); }
+.id { font: 500 12.5px var(--mono); }
+.mat { min-width: 0; }
+.mat b { font-weight: 500; display: block; overflow-wrap: anywhere; }
+.mat span { color: var(--muted); font-size: 12px; }
+.track { position: relative; height: 18px; background: var(--grid); border-radius: 2px; overflow: hidden; }
+.bar { position: absolute; left: 0; top: 0; height: 10px; border-radius: 0 3px 3px 0; min-width: 3px; transition: width .25s ease; }
+.bar2 { position: absolute; left: 0; top: 12px; height: 4px; border-radius: 0 2px 2px 0; min-width: 3px; background: var(--muted); }
+.bar.zero { width: 3px; border-radius: 1px; }
+.val { font: 500 13px var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.val small { display: block; font: 400 11px var(--sans); color: var(--muted); }
+.axis { display: grid; grid-template-columns: 78px minmax(0,1.15fr) minmax(0,1.5fr) 100px; gap: 12px; padding: 0 10px; margin-top: 4px; font: 11px var(--mono); color: var(--muted); }
+.axis .scale { display: flex; justify-content: space-between; }
+
+.detail-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 20px; align-items: baseline; }
+.pill { display: inline-block; font: 500 12px var(--sans); padding: 2px 9px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+.pill.burn { color: var(--burn); } .pill.noburn { color: var(--accent); } .pill.ok { color: var(--ok); } .pill.bad { color: var(--bad); } .pill.info { color: var(--muted); } .pill.cool { color: var(--cool); }
+
+dl.cond { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 14px 20px; margin: 16px 0 4px; }
+dl.cond div { min-width: 0; }
+dt { font: 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+dd { margin: 2px 0 0; font-weight: 500; overflow-wrap: anywhere; }
+dd small { display: block; color: var(--warn-ink); font-weight: 400; font-size: 12px; }
+
+.chart-host { position: relative; margin-top: 14px; }
+.chart-host svg { display: block; width: 100%; height: auto; overflow: visible; }
+.tip {
+  position: absolute; pointer-events: none; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 4px; padding: 8px 11px; font: 12px/1.45 var(--sans);
+  box-shadow: 0 4px 14px rgb(0 0 0 / .18); white-space: nowrap; z-index: 10;
+}
+.tip b { font: 600 12px var(--mono); }
+.note { font-size: 12.5px; color: var(--muted); margin-top: 10px; max-width: 82ch; }
+.empty { margin-top: 16px; padding: 16px; border: 1px dashed var(--line); border-radius: 4px; color: var(--ink2); }
+.table-wrap { overflow-x: auto; margin-top: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 560px; }
+th { text-align: left; font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); }
+td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--grid); vertical-align: top; }
+td.n { font: 13px var(--mono); font-variant-numeric: tabular-nums; }
+td small { display: block; color: var(--muted); font-size: 12px; max-width: 48ch; }
+.flags { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.flags li { background: var(--warn-bg); color: var(--warn-ink); border-radius: 4px; padding: 8px 12px; font-size: 12.5px; }
+.flags li.res { background: var(--band); color: var(--ink2); }
+.flags li q { display: block; font-style: italic; color: var(--muted); margin-top: 3px; font-size: 11.5px; }
+
+@media (max-width: 760px) {
+  .inv-row { grid-template-columns: 64px 1fr auto; }
+  .inv-row .hide-sm { display: none; }
+  .row { grid-template-columns: 64px minmax(0,1fr) 84px; }
+  .row .track { grid-column: 1 / -1; grid-row: 2; }
+  .axis { display: none; }
+  h1 { font-size: 23px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="top-bar">
+      <div>
+        <div class="eyebrow">NASA Physical Sciences Informatics (PSI) · 19 Investigations · 3 821 Essais</div>
+        <h1>Combustion & Sécurité Incendie en Microgravité</h1>
+      </div>
+      <button class="theme-btn" id="themeToggle" type="button">Thème : Auto / Sombre</button>
+    </div>
+    <p>Instrument d'exploration et de comparaison multi-expériences développé à partir des tables expérimentales de la NASA (`investigations.csv`, `tests.csv`, `context.csv`) et de la tranche verticale `SAFFIRE-II`. Comparez les limites d'inflammabilité des matériaux solides, la physique des gouttelettes et flammes froides, la structure des jets gazeux et la détection des fumées en orbite.</p>
+
+    <div class="kpi-strip" style="margin-top: 16px;">
+      <div class="kpi-card">
+        <div class="eyebrow">Investigations PSI</div>
+        <div class="k-val">19</div>
+        <div class="k-sub">4 groupes thématiques (ISS & Cygnus)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="eyebrow">Essais répertoriés</div>
+        <div class="k-val">3 821</div>
+        <div class="k-sub">Solides (263), Gouttes (1 080), Gaz (2 298), Fumées (180)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="eyebrow">Limite min. O₂ observée</div>
+        <div class="k-val" style="color:var(--burn)">13,5 %</div>
+        <div class="k-sub">PMMA en microgravité (BASS-II) contre 15,4 % à 1 g</div>
+      </div>
+      <div class="kpi-card">
+        <div class="eyebrow">Contexte & Preuves</div>
+        <div class="k-val">941</div>
+        <div class="k-sub">Citations vérifiées et mesures de capteurs</div>
+      </div>
+    </div>
+
+    <nav class="nav-tabs" role="tablist" aria-label="Modes d'analyse" style="margin-top: 20px;">
+      <button class="tab-btn" role="tab" aria-selected="true" data-tab="view-compare">
+        1. Comparateur Multi-Expériences <span class="badge">19 PSI</span>
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="view-scatter">
+        2. Explorateur & Nuage de points <span class="badge">Multi-essais</span>
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="view-saffire">
+        3. Fiches Échantillons & Télémétrie 30 Hz <span class="badge">SAFFIRE I·II·III</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ==================== VUE 1 : COMPARATEUR MULTI-EXPERIENCES ==================== -->
+  <div id="view-compare" class="tab-panel">
+    <section>
+      <div class="detail-head">
+        <div>
+          <h2>Catalogue des 19 investigations de combustion de la NASA</h2>
+          <p class="sub">Cliquez sur « + Comparer » (jusqu'à 4 expériences simultanées) pour confronter leurs conditions opératoires, leurs résultats d'allumage/extinction et les conclusions scientifiques extraites de <code>context.csv</code>.</p>
+        </div>
+      </div>
+
+      <div class="filter-bar" style="margin-top: 14px;">
+        <span class="eyebrow">Filtrer par groupe :</span>
+        <div class="chip-group" id="groupFilters">
+          <button class="chip" type="button" data-group="all" aria-pressed="true">Tous (19)</button>
+          <button class="chip" type="button" data-group="solid materials" aria-pressed="false">Matériaux solides (5)</button>
+          <button class="chip" type="button" data-group="fuel and flame physics" aria-pressed="false">Physique des carburants & flammes froides (6)</button>
+          <button class="chip" type="button" data-group="flame structure" aria-pressed="false">Structure de flamme & E-FIELD (5)</button>
+          <button class="chip" type="button" data-group="smoke detection" aria-pressed="false">Détection de fumée & aérosols (3)</button>
+        </div>
+      </div>
+
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--burn)"></i>Combustion / Allumage confirmé</span>
+        <span><i style="background:var(--cool)"></i>Flamme froide (Cool flame)</span>
+        <span><i style="background:var(--accent)"></i>Pas d'allumage / Extinction / Point de fumée</span>
+      </div>
+
+      <div class="inv-rows" id="invList"></div>
+    </section>
+
+    <section style="margin-top: 22px;">
+      <div class="detail-head">
+        <div>
+          <div class="eyebrow">Analyse transversale</div>
+          <h2>Comparaison côte à côte des expériences sélectionnées</h2>
+        </div>
+        <span class="sub" id="compCountLabel">3 expériences sélectionnées</span>
+      </div>
+      <div class="comp-grid" id="compGrid"></div>
+    </section>
+  </div>
+
+  <!-- ==================== VUE 2 : EXPLORATEUR & NUAGE DE POINTS ==================== -->
+  <div id="view-scatter" class="tab-panel" hidden>
+    <section>
+      <div class="detail-head">
+        <div>
+          <div class="eyebrow">Croisement paramétrique multi-expériences</div>
+          <h2>Nuage de points interactif des essais (Solides, Gouttelettes, Gaz et Fumées)</h2>
+          <p class="sub">Sélectionnez un jeu d'axes physiques pour comparer directement les régimes d'inflammabilité, de vitesse d'écoulement, de taille de gouttelette ou de granulométrie de fumée entre plusieurs investigations.</p>
+        </div>
+      </div>
+
+      <div class="filter-bar" style="margin-top: 16px;">
+        <label class="eyebrow" for="presetSelect">Jeu d'axes (Preset) :</label>
+        <select id="presetSelect">
+          <option value="solid_o2_flow">1. Solides & Gaz : Concentration O₂ (%) vs Vitesse d'écoulement (cm/s) — BASS, BASS-II, SAFFIRE, SPICE, E-FIELD</option>
+          <option value="burn_o2">2. Multi-combustibles : Concentration O₂ (%) vs Durée de combustion (s) — SAFFIRE, BASS, BRE, CFI-G, Flame-Design</option>
+          <option value="droplet_d_k">3. Gouttelettes (FLEX & CFI) : Diamètre initial (mm) vs Taux de combustion K (mm²/s)</option>
+          <option value="smoke_d_m">4. Fumées (SAME & SAME-R) : Diamètre moyen (µm) vs Concentration massique (mg/m³)</option>
+        </select>
+
+        <label class="eyebrow" for="outcomeFilter">Résultat :</label>
+        <select id="outcomeFilter">
+          <option value="all">Tous les résultats</option>
+          <option value="burn">Combustion soutenue / Brûlé</option>
+          <option value="ext">Extinction basse vitesse / Auto-éteint</option>
+          <option value="cool">Flamme froide (Cool flame)</option>
+          <option value="noig">Pas d'allumage / Non enflammé</option>
+        </select>
+      </div>
+
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--burn);height:8px;width:8px;border-radius:50%"></i>Combustion soutenue / Brûlé</span>
+        <span><i style="background:var(--warn-ink);height:8px;width:8px;border-radius:50%"></i>Extinction à bas débit / Auto-extinction</span>
+        <span><i style="background:var(--cool);height:8px;width:8px;border-radius:50%"></i>Flamme froide (Cool flame)</span>
+        <span><i style="background:var(--accent);height:8px;width:8px;border-radius:50%"></i>Pas d'allumage / Fumée sans flamme</span>
+      </div>
+
+      <div class="chart-host" id="scatterHost"></div>
+
+      <div style="margin-top: 22px;">
+        <h3>Tableau d'inspection des essais affichés (Cliquez sur un point ou filtrez)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Expérience</th>
+                <th>Test ID</th>
+                <th>Matériau / Carburant</th>
+                <th>Géométrie / Forme</th>
+                <th>Paramètres clés</th>
+                <th>Résultat</th>
+                <th>Notes & Capteurs</th>
+              </tr>
+            </thead>
+            <tbody id="scatterTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== VUE 3 : FICHE ECHANTILLON & TELEMETRIE (CLAUDE + SAFFIRE I/II/III) ==================== -->
+  <div id="view-saffire" class="tab-panel" hidden>
+    <section aria-labelledby="h-res">
+      <div class="detail-head">
+        <div>
+          <div class="eyebrow">PSI-98 · PSI-99 · PSI-100 · Tranche verticale étendue</div>
+          <h2 id="h-res">Campagnes SAFFIRE-I, SAFFIRE-II et SAFFIRE-III : Résultats par échantillon (µ-g vs 1 g)</h2>
+          <p class="sub">Comparaison des 13 échantillons brûlés à bord des cargos Cygnus après désamarrage de l'ISS. Barre épaisse : microgravité (% de la longueur d'échantillon brûlée, ou durée relative pour SAFFIRE-I/III). Barre fine : référence au sol (1 g).</p>
+        </div>
+        <div>
+          <label class="eyebrow" for="saffireFilter">Campagne :</label>
+          <select id="saffireFilter">
+            <option value="all">Toutes (SAFFIRE I, II, III — 13 essais)</option>
+            <option value="PSI-99">SAFFIRE-II uniquement (9 échantillons — Vue Claude)</option>
+            <option value="PSI-98">SAFFIRE-I (2 grands échantillons SIBAL 94×40 cm)</option>
+            <option value="PSI-100">SAFFIRE-III (2 échantillons SIBAL à 30 cm/s)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--burn)"></i>Combustion soutenue en µ-g</span>
+        <span><i style="background:var(--accent)"></i>Pas de combustion soutenue en µ-g</span>
+        <span><i style="background:var(--muted);height:3px"></i>Référence 1 g (au sol)</span>
+      </div>
+      <div class="rows" id="rows"></div>
+      <div class="axis" aria-hidden="true">
+        <span></span><span></span>
+        <span class="scale"><span>0 %</span><span>35 %</span><span>70 %</span><span>100 % de l'échantillon</span></span>
+        <span></span>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-det" id="detail" style="margin-top: 22px;"></section>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   1. DONNÉES MULTI-EXPÉRIENCES AGRÉGÉES DEPUIS investigations.csv, tests.csv, context.csv
+   ============================================================================ */
+const INVESTIGATIONS = [
+  {
+    psi_id: "PSI-99", acronym: "SAFFIRE-II", title: "Spacecraft Fire Experiment-II", group: "solid materials",
+    tests: 9, ignited_count: 5, cool_count: 0, platform: "Cygnus Spacecraft", hardware: "SAFFIRE Flow Duct (Cygnus)",
+    pi: "David Urban", dates: "2016–2017", pubs: 7, fuel_type: "solid",
+    materials: ["Silicone (0.27–1.03 mm)", "SIBAL (75% coton / 25% fibre de verre)", "PMMA & Nomex", "PMMA (10 mm)"],
+    o2_range: "21,5 – 22,1 %", pressure_range: "1,01 atm", flow_range: "20 – 25 cm/s (conc. / opp.)",
+    key_metric: "Longueur brûlée : 0 à 29 cm | Pic TC : jusqu'à 961 °C (SIBAL 2-5)",
+    objective: "Déterminer la vitesse de croissance d'un incendie à grande échelle en microgravité et comparer les limites d'inflammabilité en basse gravité avec le test standard NASA-STD-6001 Test 1 au sol (5 × 29 cm).",
+    findings: [
+      { field: "finding", val: "Matériaux choisis à la limite d'inflammabilité 1 g près de 21 % O₂ : le silicone s'éteint en µ-g alors qu'il brûle complètement à 1 g (0,27 et 0,37 mm).", quote: "These materials were selected because they have normal gravity Maximum Oxygen Concentration (MOC) flammability limits near 21% O2." },
+      { field: "finding", val: "Le composite SIBAL brûle intégralement (29 cm) à 2,1 mm/s (20 cm/s) et 2,6 mm/s (25 cm/s mesuré).", quote: "flame 146 s from ignition; peak sample TC 961 C" }
+    ]
+  },
+  {
+    psi_id: "PSI-98", acronym: "SAFFIRE-I", title: "Spacecraft Fire Safety Experiment-I", group: "solid materials",
+    tests: 2, ignited_count: 2, cool_count: 0, platform: "Cargo Cygnus (après départ ISS)", hardware: "Saffire 1 enclosure",
+    pi: "David Urban", dates: "2016", pubs: 6, fuel_type: "solid",
+    materials: ["Tissu composite SIBAL (0,94 m × 0,40 m, ép. 0,37 mm)"],
+    o2_range: "21,5 %", pressure_range: "0,99 atm (14,5 psia)", flow_range: "20 cm/s (conc. et opp.)",
+    key_metric: "Durée combustion : 420 s (concourant) vs 70 s (contre-courant)",
+    objective: "Étudier la propagation d'un feu réaliste de très grande dimension (94 × 40 cm, contre <10 cm auparavant) dans un véhicule spatial sans risque pour l'équipage.",
+    findings: [
+      { field: "finding", val: "Avant Saffire, les tests en microgravité étaient limités à 10 cm ; Saffire-I brûle un lé de 94 × 40 cm.", quote: "Prior experiments have been limited to samples no larger than 10 cm in length and width whereas a series of large scale spacecraft fire experiments (Saffire) burns a 94 by 40 cm sheet." },
+      { field: "finding", val: "Hausse du radiomètre jusqu'à 147 mW/cm² en flux concourant (S1) contre 18 mW/cm² en flux opposé (S2).", quote: "peak radiometer rise 147 mW/cm2; Cygnus cabin pressure 14.488 psia, rise 0.34 kPa" }
+    ]
+  },
+  {
+    psi_id: "PSI-100", acronym: "SAFFIRE-III", title: "Spacecraft Fire Experiment-III", group: "solid materials",
+    tests: 2, ignited_count: 2, cool_count: 0, platform: "Cargo Cygnus (ISS)", hardware: "Saffire III enclosure",
+    pi: "David Urban", dates: "2017", pubs: 3, fuel_type: "solid",
+    materials: ["Tissu composite SIBAL (ép. 0,33 mm)"],
+    o2_range: "19,77 – 19,98 %", pressure_range: "1,00 atm", flow_range: "25 – 30 cm/s (conc. et opp.)",
+    key_metric: "Pic TC : 1 088 °C et flux radiatif 1,86 kW/m² en flux concourant (S1)",
+    objective: "Évaluer la vitesse de propagation sur le tissu SIBAL à un débit d'air supérieur (30 cm/s nominal, 25 cm/s mesuré) et une concentration d'O₂ légèrement inférieure (~19,9 %).",
+    findings: [
+      { field: "finding", val: "En flux concourant (S1), combustion complète en 362 s avec pic à 1 088 °C ; en flux opposé (S2), extinction à l'arrêt du ventilateur après 72 s.", quote: "sensors: O2 19.98 > 19.75 %; CO2 0.40 > 0.60 %; peak sample TC 1088 C" }
+    ]
+  },
+  {
+    psi_id: "PSI-25", acronym: "BASS-II", title: "Burning and Suppression of Solids - II", group: "solid materials",
+    tests: 129, ignited_count: 115, cool_count: 0, platform: "ISS", hardware: "Microgravity Science Glovebox (MSG)",
+    pi: "Paul Ferkul / Sandra Olson", dates: "2010–2022", pubs: 17, fuel_type: "solid",
+    materials: ["PMMA (films 0,1–0,4 mm, plaques, tiges cylindriques)", "SIBAL", "Nomex", "Cire du Japon"],
+    o2_range: "13,6 – 22,2 %", pressure_range: "1,00 atm", flow_range: "0 – 49 cm/s",
+    key_metric: "Limite min. O₂ : 13,5 % en µ-g (contre 15,4 % à 1 g) | Délai d'allumage jusqu'à 230 s",
+    objective: "Étudier l'allumage, la propagation et les limites d'extinction des combustibles solides sous écoulement forcé à basse vitesse en microgravité pour préparer SoFIE.",
+    findings: [
+      { field: "min_o2_percent", val: "Propagation observée jusqu'à 13,5 % d'O₂ en écoulement de stagnation (contre 15,4 % à 1 g) et 16,4 % en flux opposé sur tiges de PMMA.", quote: "The minimum O2 concentration of 13.5 percent O2 is significantly lower than the observed upward flame spread limit of 15.4 percent O2." },
+      { field: "finding", val: "La zone de faible ventilation qui maintient les matériaux inflammables au plus bas taux d'O₂ correspond typiquement aux flux proches des parois de l'ISS (« Goldilocks zone »).", quote: "This “Goldilocks” zone of flow is unfortunately typical of spacecraft ventilation flows near surfaces." },
+      { field: "smoke", val: "Le rapport CO/CO₂ augmente quand l'O₂ baisse, atteignant 10 fois la valeur au calorimètre à cône à 1 g (~600 ppm CO par % vol CO₂).", quote: "approximately 600 ppm of CO produced for every 1 vol% of CO2 produced" }
+    ]
+  },
+  {
+    psi_id: "PSI-26", acronym: "BASS", title: "Burning and Suppression of Solids", group: "solid materials",
+    tests: 121, ignited_count: 106, cool_count: 0, platform: "ISS", hardware: "Microgravity Science Glovebox (MSG)",
+    pi: "Paul Ferkul", dates: "2009–2013", pubs: 10, fuel_type: "solid",
+    materials: ["PMMA (sphères, tiges, feuilles)", "SIBAL", "Nomex", "Ultem", "Cire de paraffine & Japon"],
+    o2_range: "15,9 – 22,7 %", pressure_range: "0,95 – 1,03 atm", flow_range: "0 – 30 cm/s",
+    key_metric: "Vitesse d'extinction basse : < 1 cm/s | Max vitesse opposée vers 10–15 cm/s",
+    objective: "Faire le pont entre le test terrestre NASA-STD-6001 Test 1 et l'inflammabilité réelle en microgravité, et tester l'extinction par jet d'azote (N₂).",
+    findings: [
+      { field: "finding", val: "La propagation à contre-courant sur tissu SIBAL est soutenue en microgravité alors que la même flamme s'auto-éteint en descendant à 1 g.", quote: "These tests show the enhanced flammability in microgravity for this geometry, since, in normal gravity, downward-spreading flames self-extinguish." },
+      { field: "suppression", val: "Plusieurs essais de suppression à l'azote (N₂) n'ont éteint la flamme que lorsque la ventilation a été totalement coupée (< 1 cm/s).", quote: "Only extinguishes when all flow stops." }
+    ]
+  },
+  {
+    psi_id: "PSI-69", acronym: "FLEX", title: "Flame Extinguishment Experiment", group: "fuel and flame physics",
+    tests: 274, ignited_count: 268, cool_count: 47, platform: "ISS", hardware: "CIR / MDCA (Multi-user Droplet Combustion Apparatus)",
+    pi: "Forman Williams", dates: "2009–2012", pubs: 45, fuel_type: "droplet",
+    materials: ["Heptane (n-heptane)", "Méthanol"],
+    o2_range: "12,0 – 34,0 %", pressure_range: "0,69 – 3,05 atm", flow_range: "Quasi-statique (gouttelette isolée)",
+    key_metric: "Diamètre goutte : 1,1 à 4,7 mm | Taux de combustion K : 0,05 à 1,72 mm²/s",
+    objective: "Quantifier l'extinction radiative et diffusive de gouttelettes de carburant sphériques en microgravité sous différentes atmosphères diluées (N₂, CO₂, He, Xe).",
+    findings: [
+      { field: "finding", val: "Découverte inattendue de la combustion en deux étapes des gouttelettes de n-heptane : après l'extinction radiative de la flamme chaude visible, une flamme froide invisible continue de consommer la goutte.", quote: "extinction, then cool flame; radiative extinction followed by vapor cloud formation" }
+    ]
+  },
+  {
+    psi_id: "PSI-68", acronym: "FLEX-2", title: "Flame Extinguishment Experiment - 2", group: "fuel and flame physics",
+    tests: 579, ignited_count: 245, cool_count: 0, platform: "ISS", hardware: "CIR / MDCA",
+    pi: "Forman Williams / Vedha Nayagam", dates: "2012–2016", pubs: 22, fuel_type: "droplet",
+    materials: ["Décane", "Octane", "Éthanol", "Mélanges Propanol / Glycérol (95/5 et 80/20)"],
+    o2_range: "16,6 – 39,7 %", pressure_range: "0,49 – 3,07 atm", flow_range: "Gouttelettes libres ou sur fibre",
+    key_metric: "579 essais couvrant les mélanges bi-composants et alcools lourds",
+    objective: "Étendre FLEX aux mélanges de carburants (propanol/glycérol, alcanes lourds) et aux interactions gouttelette-gouttelette ou gouttelette-écoulement convectif lent.",
+    findings: [
+      { field: "finding", val: "Les mélanges propanol/glycérol mettent en évidence la distillation préférentielle et les micro-explosions (disruptions) en fin de vie de la gouttelette.", quote: "bi-component droplet combustion and preferential vaporization" }
+    ]
+  },
+  {
+    psi_id: "PSI-39", acronym: "CFI", title: "Cool Flames Investigation", group: "fuel and flame physics",
+    tests: 227, ignited_count: 219, cool_count: 171, platform: "ISS", hardware: "CIR / MDCA",
+    pi: "Richard Axelbaum / Peter Sunderland", dates: "2017–2018", pubs: 9, fuel_type: "droplet",
+    materials: ["n-Dodécane (C₁₂H₂₆)", "Mélanges C₁₂H₂₆ / iso-dodécane", "Farnésane"],
+    o2_range: "16,9 – 21,0 %", pressure_range: "0,50 – 5,03 atm", flow_range: "Gouttelette (~4,4 mm) sur fibre 40 µm",
+    key_metric: "171 flammes froides confirmées (700–900 K, invisibles aux caméras couleur)",
+    objective: "Étudier spécifiquement les flammes froides (700–900 K) d'alcanes lourds (dodécane) après l'extinction radiative de la flamme chaude (>1 200 K).",
+    findings: [
+      { field: "finding", val: "Au-dessus de 2 atm, la flamme chaude et la flamme froide alternent via de multiples cycles de ré-allumage jusqu'à consommation complète de la goutte.", quote: "as the ambient pressure is increased above 2 atm, multiple reignition cycles were observed, where first the hot flame extinguishes radiatively, transitioning to a cool flame, which then reignites back into a hot flame." },
+      { field: "material_flammability", val: "L'ajout d'iso-dodécane au n-dodécane réduit la tendance à former des flammes froides ; la dilution à l'hélium provoque une extinction plus précoce.", quote: "The addition of iso-dodecanol reduces the tendency to form cool flames in n-dodecanol." }
+    ]
+  },
+  {
+    psi_id: "PSI-159", acronym: "ACME CFI-G", title: "Cool Flames Investigation with Gases", group: "fuel and flame physics",
+    tests: 342, ignited_count: 273, cool_count: 8, platform: "ISS", hardware: "Combustion Integrated Rack (CIR) · ACME",
+    pi: "Peter Sunderland / Richard Axelbaum", dates: "2020–2021", pubs: 2, fuel_type: "gas jet",
+    materials: ["n-Butane (pur, 50%, 30%)", "Propane", "Éthane"],
+    o2_range: "12,0 – 85,0 %", pressure_range: "0,49 – 3,27 atm", flow_range: "Brûleur sphérique poreux",
+    key_metric: "Jusqu'à 6 ré-allumages consécutifs de flamme chaude via flamme froide (2 bar, 40 % O₂)",
+    objective: "Observer pour la première fois des flammes froides de diffusion sphériques avec des hydrocarbures gazeux sans recourir à l'ajout d'ozone.",
+    findings: [
+      { field: "cool_flame", val: "À 2 bar et 39–40 % O₂, le n-butane produit des flammes froides de diffusion qui ont provoqué jusqu'à 6 ré-allumages spontanés en flamme chaude dans un même essai.", quote: "hot flame extinguished & reignited repeatedly until we simply stopped the fuel flow" },
+      { field: "detection", val: "Les flammes froides sont passées inaperçues pendant les opérations en direct et n'ont été découvertes que plusieurs jours plus tard à l'analyse des capteurs.", quote: "evidence of cool flames was first discovered in review of the data a few days after the testing." }
+    ]
+  },
+  {
+    psi_id: "PSI-10", acronym: "ACME/Flame Design", title: "ACME / Flame Design", group: "fuel and flame physics",
+    tests: 358, ignited_count: 328, cool_count: 0, platform: "ISS", hardware: "CIR · ACME",
+    pi: "Richard Axelbaum / Dennis Stocker", dates: "2017–2019", pubs: 12, fuel_type: "gas jet",
+    materials: ["Éthylène (C₂H₄)", "Propane (C₃H₈) — Flammes normales et inverses"],
+    o2_range: "2,0 – 85,0 %", pressure_range: "0,43 – 3,02 atm", flow_range: "Brûleur sphérique (0–870 s)",
+    key_metric: "Température critique d'extinction : 1 130 K pour toutes les flammes sur l'ISS",
+    objective: "Optimiser la conception des flammes de diffusion (normales et inverses) pour contrôler la formation de suie et comprendre l'extinction radiative.",
+    findings: [
+      { field: "extinction_temperature_k", val: "Toutes les flammes observées (éthylène normal et inverse) s'éteignent à une température critique de pic identique de 1 130 K.", quote: "All the ISS flames observed by this project extinguish at a critical extinction temperature of 1130 K." },
+      { field: "finding", val: "Plus longue flamme stationnaire observée sur l'ISS : 870 s ; les petites flammes brûlent jusqu'à la surchauffe du brûleur.", quote: "flames that exhibit steady-state behavior are observed aboard the ISS for up to 870 s" }
+    ]
+  },
+  {
+    psi_id: "PSI-20", acronym: "ACME BRE", title: "ACME - Burning Rate Emulator", group: "fuel and flame physics",
+    tests: 230, ignited_count: 204, cool_count: 0, platform: "ISS", hardware: "CIR · ACME",
+    pi: "James Quintiere / Peter Sunderland", dates: "2018–2020", pubs: 9, fuel_type: "gas burner",
+    materials: ["Éthylène (C₂H₄)", "Méthane (CH₄) simulant PMMA, Nylon, papier, alcool"],
+    o2_range: "19,6 – 39,8 %", pressure_range: "0,54 – 1,03 atm", flow_range: "Atmosphère stagnante (0 cm/s)",
+    key_metric: "En atmosphère 21 % O₂ sans ventilation, toute flamme BRE s'éteint en < 40 s",
+    objective: "Simuler la combustion de matériaux solides/liquides (chaleur de gazéification contrôlée) à l'aide d'un brûleur gazeux plat asservi au flux thermique.",
+    findings: [
+      { field: "suppression", val: "Couper la ventilation ne suffit plus à haute teneur en O₂ : dès 26,5 % O₂ (10,2 psia, atmosphère d'exploration NASA), les équivalents PMMA et Nylon brûlent indéfiniment sans aucun flux d'air.", quote: "Quasi-steady burning corresponding to various condensed-phase materials (such as PMMA and Nylon) was observed in microgravity despite the absence of air flow." },
+      { field: "finding", val: "60 % de la chaleur de la flamme est perdue par rayonnement en microgravité contre 30 % en gravité normale.", quote: "Radiative loss fraction for the flames in microgravity can reach about 60% compared to 30% for the normal gravity flames." }
+    ]
+  },
+  {
+    psi_id: "PSI-22", acronym: "ACME E-FIELD Flames", title: "Electric-Field Effects on Laminar Diffusion Flames", group: "flame structure",
+    tests: 203, ignited_count: 200, cool_count: 0, platform: "ISS", hardware: "CIR · ACME (Mesh electrode)",
+    pi: "Derek Dunn-Rankin", dates: "2018–2019", pubs: 6, fuel_type: "gas jet",
+    materials: ["Méthane (CH₄, 25–100%)", "Éthylène (C₂H₄, 35–100%)"],
+    o2_range: "21,0 %", pressure_range: "1,00 atm", flow_range: "0 – 31 cm/s (co-courant + vent ionique)",
+    key_metric: "Le courant ionique suit l'intensité de combustion (capteur électrique de flamme)",
+    objective: "Utiliser la force de Coulomb sur les ions de la flamme (vent ionique) pour contrôler la stabilité, réduire la suie ou souffler une flamme sans convection gravitaire.",
+    findings: [
+      { field: "finding", val: "De faibles champs électriques suffisent à stabiliser à l'allumage des flammes très pauvres qui s'éteindraient immédiatement sans champ.", quote: "The very weak low fuel concentration flames were stabilized at ignition with very small electric fields, where without the fields the flames would quickly quench." },
+      { field: "suppression", val: "Un champ électrique élevé permet également de souffler (éteindre) la flamme sous certaines conditions, et le courant ionique sert de détecteur de flamme.", quote: "The electric field was also able to blow out flames under some conditions." }
+    ]
+  },
+  {
+    psi_id: "PSI-21", acronym: "ACME CLD Flame", title: "Coflow Laminar Diffusion Flame", group: "flame structure",
+    tests: 394, ignited_count: 358, cool_count: 0, platform: "ISS", hardware: "CIR · ACME",
+    pi: "Marshall Long / Mitchell Smooke", dates: "2017–2020", pubs: 9, fuel_type: "gas jet",
+    materials: ["Méthane (CH₄ dilué N₂, 5–100%)", "Éthylène (C₂H₄ dilué N₂)"],
+    o2_range: "21,0 %", pressure_range: "1,00 – 1,02 atm", flow_range: "0 – 55 cm/s (coflow d'air)",
+    key_metric: "4 à 8 fois plus de suie en µ-g qu'à 1 g ; limite de dilution CH₄ à 24–27 %",
+    objective: "Étudier la structure détaillée (température, suie, limites de dilution et de décollement) des flammes de diffusion laminaires à co-courant.",
+    findings: [
+      { field: "finding", val: "L'apesanteur élargit le domaine d'inflammabilité : un jet à 30 % CH₄ brûle de façon stable en microgravité mais est impossible à stabiliser à 1 g.", quote: "Stable flames in microgravity were achievable at a dilution of 30% CH4. As a comparison, stable flames in normal gravity are unachievable at this dilution." },
+      { field: "smoke", val: "Les flammes en microgravité produisent 4 à 8 fois plus de suie qu'au sol, et le maximum de suie se déplace du centre vers les ailes de la flamme.", quote: "microgravity flames can be 4-8 times sootier than their normal gravity counterparts" }
+    ]
+  },
+  {
+    psi_id: "PSI-23", acronym: "ACME s-Flame", title: "Structure and Response of Spherical Diffusion Flames", group: "flame structure",
+    tests: 284, ignited_count: 261, cool_count: 0, platform: "ISS", hardware: "CIR · ACME",
+    pi: "Chung Law / Stephen Tse", dates: "2017–2019", pubs: 6, fuel_type: "gas burner",
+    materials: ["Éthylène (C₂H₄)", "Méthane (CH₄)", "Hydrogène (H₂)", "Mélanges H₂ + CH₄"],
+    o2_range: "17,5 – 30,0 %", pressure_range: "1,00 atm", flow_range: "Sphérique sans convection",
+    key_metric: "Double limite d'extinction : cinétique à bas débit, radiative à haut débit",
+    objective: "Analyser la croissance, les oscillations et l'extinction radiative ou cinétique des flammes de diffusion sphériques pures.",
+    findings: [
+      { field: "finding", val: "Contrairement aux tours de chute libre (trop courtes), l'extinction radiative des flammes en croissance est un phénomène fréquent en microgravité prolongée sur l'ISS.", quote: "Surprisingly, radiative extinction has been found to be a common event in ISS testing." },
+      { field: "finding", val: "Deux régimes d'extinction : extinction chimique (cinétique, bas Damköhler) à faible débit de carburant, et extinction radiative à fort débit.", quote: "kinetic extinction at low flow rates (low system Da) and radiative extinction at high flow rates (high system Da)." }
+    ]
+  },
+  {
+    psi_id: "PSI-107", acronym: "SPICE", title: "Smoke Point In Co-flow Experiment", group: "flame structure",
+    tests: 475, ignited_count: 473, cool_count: 0, platform: "ISS", hardware: "Microgravity Science Glovebox (MSG)",
+    pi: "David Urban / Gary Ruff", dates: "2009–2012", pubs: 12, fuel_type: "gas jet",
+    materials: ["Éthylène", "Propane", "Propylène (100%, 75%, 50%)"],
+    o2_range: "21,0 %", pressure_range: "1,00 atm", flow_range: "0,3 – 85,3 cm/s",
+    key_metric: "55 points de fumée mesurés en orbite (longueur de flamme : 13,4 à 105,5 mm)",
+    objective: "Déterminer le point de fumée (longueur de flamme critique où la suie cesse d'être oxydée et s'échappe) dans un écoulement d'air co-courant en microgravité.",
+    findings: [
+      { field: "material_flammability", val: "Classement de propension à la suie en microgravité : éthylène < propane < 50% propylène < 75% propylène < propylène (le propane suie anormalement vite en µ-g).", quote: "The sooting propensities of the present fuel mixtures in microgravity increase according to ethylene < propane < 50% propylene < 75% propylene < propylene." },
+      { field: "smoke", val: "L'oxydation des suies s'arrête lorsque la pointe de la flamme refroidit à 1 000 K en microgravité (contre 1 300 K à 1 g), libérant un anneau de suie et du CO.", quote: "the tip of a nonbuoyant (microgravity) flame reaches 1000 K at its smoke point" }
+    ]
+  },
+  {
+    psi_id: "PSI-106", acronym: "SLICE", title: "Structure and Liftoff In Combustion Experiment", group: "flame structure",
+    tests: 12, ignited_count: 11, cool_count: 0, platform: "ISS", hardware: "MSG",
+    pi: "Marshall Long", dates: "2012", pubs: 6, fuel_type: "gas jet",
+    materials: ["Méthane", "Éthylène", "Éthane"],
+    o2_range: "21,0 %", pressure_range: "1,00 atm", flow_range: "Vitesses de décollement (lift-off)",
+    key_metric: "10 combinaisons carburant/brûleur testées jusqu'au décollement de flamme",
+    objective: "Mesurer les vitesses critiques de décollement (lift-off) et la structure d'émission CH* des flammes de diffusion laminaires en microgravité.",
+    findings: [
+      { field: "finding", val: "Les flammes en microgravité résistent au décollement jusqu'à des vitesses nettement plus élevées qu'à 1 g, mais une fois décollées elles sont moins stables.", quote: "The microgravity flames have lifted at significantly greater velocities than the normal-gravity flames." }
+    ]
+  },
+  {
+    psi_id: "PSI-102", acronym: "SAME", title: "Smoke and Aerosol Measurement Experiment", group: "smoke detection",
+    tests: 64, ignited_count: 0, cool_count: 0, platform: "ISS", hardware: "Comparative Soot Diagnostic (CSD)",
+    pi: "David Urban", dates: "2007", pubs: 8, fuel_type: "smoke",
+    materials: ["Silicone", "Teflon", "Kapton", "Mèche coton (lampwick)", "Dibutyl phtalate (DBP)"],
+    o2_range: "Air cabine ISS (~21 %)", pressure_range: "1,00 atm", flow_range: "2,0 – 8,1 cm/s",
+    key_metric: "Diamètre moyen : 0,09 à 0,37 µm | Masse : 5,7 à 351 mg/m³",
+    objective: "Comparer la réponse des détecteurs de fumée à ionisation (Navette Spatiale, sensible <0,5 µm) et à diffusion optique (ISS, sensible >1 µm) face aux fumées de pyrolyse en microgravité.",
+    findings: [
+      { field: "detection", val: "Les détecteurs de l'ISS (diffusion optique >0,3–1 µm) et de la Navette (ionisation) couvrent des tailles de particules qui ne se chevauchent pas : le Teflon donne un signal fort sur Navette mais erratique sur ISS.", quote: "the ISS and the Orbiter detectors have particle sensitivities that do not overlap." }
+    ]
+  },
+  {
+    psi_id: "PSI-101", acronym: "SAME-R", title: "Smoke Aerosol Measurement Experiment-Reflight", group: "smoke detection",
+    tests: 110, ignited_count: 1, cool_count: 0, platform: "ISS", hardware: "CSD Hardware",
+    pi: "David Urban", dates: "2010", pubs: 3, fuel_type: "smoke",
+    materials: ["Kapton", "Silicone", "Teflon", "Mèche coton (lampwick)", "Mousse Pyrell"],
+    o2_range: "Air cabine ISS (~21 %)", pressure_range: "1,00 atm", flow_range: "0,0 – 8,1 cm/s (avec vieillissement)",
+    key_metric: "Particules 2 à 3× plus grosses à débit nul (0 cm/s) qu'à 8 cm/s",
+    objective: "Étudier la croissance par coagulation (vieillissement) des aérosols de fumée dans les zones non ventilées (baies avioniques) en microgravité.",
+    findings: [
+      { field: "smoke_size", val: "En l'absence de flux d'air (0 cm/s), les particules de fumée sont 2 à 3 fois plus grosses qu'à 8 cm/s, un phénomène propre à la microgravité (absence de mélange convectif).", quote: "The zero flow conditions produced smoke particles that were 2 to 3 times larger than those produced at 8 cm/s." },
+      { field: "detection", val: "Il faut mesurer au moins 2 moments de la distribution de taille (ex. prototype MPASS) pour détecter toutes les fumées tout en rejetant la poussière.", quote: "measure more than one moment of the size distribution to detect all smokes and reject dust." }
+    ]
+  },
+  {
+    psi_id: "PSI-47", acronym: "DAFT / DAFT-2", title: "Dust and Aerosol Measurement Feasibility Test", group: "smoke detection",
+    tests: 6, ignited_count: 0, cool_count: 0, platform: "ISS", hardware: "Compteur de particules TSI P-Trak",
+    pi: "David Urban", dates: "2001–2006", pubs: 2, fuel_type: "aerosol",
+    materials: ["Air cabine ISS", "Poussière de Velcro (nuisance)"],
+    o2_range: "Air cabine ISS", pressure_range: "1,00 atm", flow_range: "Ambiant cabine",
+    key_metric: "Air ISS 10× plus propre qu'un labo, mais l'ouverture d'un Velcro dépasse 30 000 part./cm³",
+    objective: "Qualifier le compteur de particules submicroniques P-Trak en microgravité et mesurer le bruit de fond d'aérosols de l'ISS pour éviter les fausses alarmes incendie.",
+    findings: [
+      { field: "detection", val: "Le détachement d'une bande Velcro fait bondir le comptage au-dessus de 30 000 particules/cm³ ; en orbite, les grosses poussières restent en suspension.", quote: "Velcro demating raised the particle count above 30,000 /cm3 (nuisance source)" }
+    ]
+  }
+];
+
+/* Échantillon représentatif multi-expériences pour le nuage de points interactif (Vue 2) */
+const SCATTER_TESTS = [
+  // SAFFIRE-II (PSI-99)
+  { inv: "SAFFIRE-II", id: "2-1", mat: "Silicone", geom: "Feuille 0,27 mm", o2: 21.5, flow: 20.0, burn_s: 0, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "noig", out: "no ignition", note: "80 W · Brûle 100 % à 1 g mais 0 cm en µ-g" },
+  { inv: "SAFFIRE-II", id: "2-2", mat: "Silicone", geom: "Feuille 0,61 mm", o2: 22.1, flow: 20.0, burn_s: 0, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "noig", out: "brief flame", note: "Flamme brève · 7,6 cm à 1 g" },
+  { inv: "SAFFIRE-II", id: "2-3", mat: "Silicone", geom: "Feuille 1,03 mm", o2: 22.1, flow: 20.0, burn_s: 0, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "noig", out: "no ignition", note: "Pas d'allumage en µ-g ni à 1 g" },
+  { inv: "SAFFIRE-II", id: "2-4", mat: "Silicone", geom: "Feuille 0,37 mm (opposé)", o2: 22.1, flow: 20.0, burn_s: 0, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "noig", out: "no ignition", note: "Flux opposé · Complet à 1 g (0,6 mm/s)" },
+  { inv: "SAFFIRE-II", id: "2-5", mat: "SIBAL (Coton/Fibre)", geom: "Feuille 0,37 mm", o2: 22.1, flow: 20.0, burn_s: 145, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned", note: "Propagation 2,1 mm/s · Pic TC 961 °C" },
+  { inv: "SAFFIRE-II", id: "2-6", mat: "SIBAL (Coton/Fibre)", geom: "Feuille 0,37 mm", o2: 22.1, flow: 25.0, burn_s: 115, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned", note: "Propagation 2,6 mm/s · Pic TC 843 °C" },
+  { inv: "SAFFIRE-II", id: "2-7", mat: "PMMA & Nomex", geom: "Composite 0,85/0,37 mm", o2: 22.1, flow: 20.0, burn_s: 140, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned", note: "5 cm PMMA brûlés, le Nomex bloque la flamme" },
+  { inv: "SAFFIRE-II", id: "2-8", mat: "PMMA structuré", geom: "Plaque 10 mm", o2: 22.1, flow: 20.0, burn_s: 600, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned", note: "Flamme ancrée 600 s jusqu'à coupure ventilateur" },
+  { inv: "SAFFIRE-II", id: "2-9", mat: "PMMA plat", geom: "Plaque 10 mm", o2: 22.0, flow: 20.0, burn_s: 900, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned", note: "Flamme ancrée 900 s · CO₂ monte à 0,51 %" },
+  // SAFFIRE-I & III
+  { inv: "SAFFIRE-I", id: "S1", mat: "SIBAL Fabric", geom: "Lé 94×40 cm (conc.)", o2: 21.5, flow: 20.0, burn_s: 420, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned", note: "Radiomètre 147 mW/cm² · hausse pression 0,34 kPa" },
+  { inv: "SAFFIRE-I", id: "S2", mat: "SIBAL Fabric", geom: "Lé 94×40 cm (opposé)", o2: 21.5, flow: 20.0, burn_s: 70, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned", note: "Radiomètre 18 mW/cm² · flux à contre-courant" },
+  { inv: "SAFFIRE-III", id: "S1", mat: "SIBAL Fabric", geom: "Feuille 0,33 mm (conc.)", o2: 19.98, flow: 30.0, burn_s: 362, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned out", note: "Pic TC 1088 °C · Radiomètre 186 mW/cm²" },
+  { inv: "SAFFIRE-III", id: "S2", mat: "SIBAL Fabric", geom: "Feuille 0,33 mm (opposé)", o2: 19.77, flow: 30.0, burn_s: 72, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "ext", out: "extinguished at low flow", note: "Éteint à l'arrêt du ventilateur à 72 s" },
+  // BASS-II (PSI-25)
+  { inv: "BASS-II", id: "B2-01", mat: "PMMA (tige noire)", geom: "Cylindre 6,4 mm", o2: 13.6, flow: 4.5, burn_s: 1206, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "ext", out: "extinguished at low flow", note: "Survie jusqu'à 13,6 % O₂ après allumage à O₂ supérieur" },
+  { inv: "BASS-II", id: "B2-02", mat: "PMMA (tige)", geom: "Cylindre 9,5 mm", o2: 16.5, flow: 2.0, burn_s: 940, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "ext", out: "extinguished at low flow", note: "Propagation opposée 0,048 mm/s" },
+  { inv: "BASS-II", id: "B2-03", mat: "PMMA (film mince)", geom: "Feuille 0,1 mm", o2: 16.0, flow: 2.6, burn_s: 384, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "ext", out: "extinguished at low flow", note: "Limite d'extinction basse vitesse à 16 % O₂" },
+  { inv: "BASS-II", id: "B2-04", mat: "PMMA (film mince)", geom: "Feuille 0,2 mm", o2: 21.0, flow: 1.0, burn_s: 450, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "ext", out: "extinguished at low flow", note: "Limite d'extinction 1,0 cm/s à 21 % O₂" },
+  { inv: "BASS-II", id: "B2-05", mat: "SIBAL Fabric", geom: "Feuille 0,3 mm", o2: 18.2, flow: 10.0, burn_s: 520, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned", note: "Propagation soutenue à 2,2 mm/s" },
+  { inv: "BASS-II", id: "B2-06", mat: "Nomex", geom: "Tissu pare-feu ISS", o2: 21.5, flow: 15.0, burn_s: 0, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "noig", out: "brief flame", note: "Aucune propagation soutenue sur les échantillons Nomex" },
+  { inv: "BASS-II", id: "B2-07", mat: "PMMA (plaque)", geom: "Plaque 5,0 mm", o2: 20.8, flow: 35.0, burn_s: 1842, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned", note: "Plus longue combustion BASS-II (1 842 s)" },
+  // BASS (PSI-26)
+  { inv: "BASS", id: "B1-02", mat: "SIBAL Fabric", geom: "Ruban 2 cm", o2: 21.2, flow: 10.0, burn_s: 120, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "burned", note: "Vitesse 2,55 mm/s (conc.) vs 1,21 mm/s (opp.)" },
+  { inv: "BASS", id: "B1-03", mat: "PMMA Sphère", geom: "Sphère PMMA", o2: 21.0, flow: 8.0, burn_s: 180, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "ext", out: "extinguished at low flow", note: "Suppression N₂ inefficace tant que le ventilateur tourne" },
+  { inv: "BASS", id: "B1-14", mat: "Cire de paraffine", geom: "Bougie / Cylindre", o2: 21.4, flow: 5.0, burn_s: 60, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "ext", out: "self-extinguished", note: "Flamme bleue hémisphérique" },
+  { inv: "BASS", id: "B1-22", mat: "Ultem", geom: "Film polymère", o2: 22.0, flow: 12.0, burn_s: 0, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "noig", out: "no ignition", note: "Matériau haute résistance thermique" },
+  // ACME BRE, E-FIELD, CLD, SPICE, CFI-G
+  { inv: "ACME BRE", id: "BRE-12", mat: "Éthylène (sim. PMMA)", geom: "Brûleur poreux 50 mm", o2: 26.5, flow: 0.0, burn_s: 185, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "flow terminated", note: "Brûle quasi-indéfiniment sans ventilation à 26,5 % O₂" },
+  { inv: "ACME BRE", id: "BRE-04", mat: "Méthane (sim. Solide)", geom: "Brûleur poreux 50 mm", o2: 21.0, flow: 0.0, burn_s: 38, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "ext", out: "self-extinguished", note: "S'auto-éteint en < 40 s à 21 % O₂ sans flux d'air" },
+  { inv: "ACME BRE", id: "BRE-29", mat: "Éthylène", geom: "Brûleur poreux", o2: 33.8, flow: 0.0, burn_s: 140, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "flow terminated", note: "Atmosphère enrichie d'exploration spatiale" },
+  { inv: "E-FIELD-Flames", id: "EF-10", mat: "Méthane (CH₄)", geom: "Jet co-courant + Champ E", o2: 21.0, flow: 15.0, burn_s: 67, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "flow terminated", note: "Vent ionique stabilise la flamme et réduit la suie" },
+  { inv: "E-FIELD-Flames", id: "EF-45", mat: "Éthylène (C₂H₄)", geom: "Jet + Haute tension", o2: 21.0, flow: 28.0, burn_s: 42, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "ext", out: "self-extinguished", note: "Extinction induite par le champ électrique" },
+  { inv: "SPICE", id: "SP-101", mat: "Propane", geom: "Buse 1,6 mm coflow", o2: 21.0, flow: 27.0, burn_s: 106, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "smoke point reached", note: "Point de fumée atteint à L = 26,7 mm" },
+  { inv: "SPICE", id: "SP-204", mat: "Propylène", geom: "Buse coflow MSG", o2: 21.0, flow: 65.0, burn_s: 180, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "burn", out: "lifted flame", note: "Flamme décollée à haute vitesse de coflow" },
+  { inv: "ACME CFI-G", id: "CFIG-08", mat: "n-Butane (50%)", geom: "Sphérique 2 bar", o2: 39.0, flow: 0.0, burn_s: 195, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "cool", out: "self-extinguished", note: "Flamme froide sphérique et 6 ré-allumages successifs" },
+  { inv: "Flame-Design", id: "FD-88", mat: "Éthylène inverse", geom: "Sphérique CIR", o2: 45.0, flow: 0.0, burn_s: 184, d0: null, k_rate: null, sm_d: null, sm_m: null, cat: "ext", out: "self-extinguished", note: "Extinction radiative à T_pic = 1 130 K" },
+  // DROPLETS : FLEX (PSI-69) & CFI (PSI-39)
+  { inv: "FLEX", id: "FL-01", mat: "n-Heptane", geom: "Goutte libre", o2: 21.0, flow: 0, burn_s: 6.2, d0: 3.12, k_rate: 0.58, sm_d: null, sm_m: null, cat: "cool", out: "extinction, then cool flame", note: "Extinction radiative à d = 1,65 mm suivie d'une flamme froide" },
+  { inv: "FLEX", id: "FL-02", mat: "n-Heptane", geom: "Goutte libre", o2: 15.0, flow: 0, burn_s: 4.8, d0: 2.85, k_rate: 0.42, sm_d: null, sm_m: null, cat: "ext", out: "diffusive extinction", note: "Atmosphère appauvrie en O₂ (15 %)" },
+  { inv: "FLEX", id: "FL-03", mat: "Méthanol", geom: "Goutte libre", o2: 21.0, flow: 0, burn_s: 8.4, d0: 3.45, k_rate: 0.52, sm_d: null, sm_m: null, cat: "ext", out: "extinction", note: "Sans suie · absorption d'eau par la goutte de méthanol" },
+  { inv: "FLEX", id: "FL-04", mat: "Méthanol", geom: "Goutte libre", o2: 30.0, flow: 0, burn_s: 11.2, d0: 4.10, k_rate: 0.89, sm_d: null, sm_m: null, cat: "burn", out: "disruption", note: "Combustion vive sous 30 % O₂" },
+  { inv: "FLEX", id: "FL-05", mat: "n-Heptane", geom: "Goutte libre", o2: 28.0, flow: 0, burn_s: 14.5, d0: 4.42, k_rate: 1.15, sm_d: null, sm_m: null, cat: "burn", out: "extinction", note: "Forte coquille de suie (soot shell)" },
+  { inv: "CFI", id: "CFI-01", mat: "n-Dodécane (C₁₂H₂₆)", geom: "Goutte sur fibre 40 µm", o2: 21.0, flow: 0, burn_s: 9.1, d0: 4.38, k_rate: 0.34, sm_d: null, sm_m: null, cat: "cool", out: "extinction, then cool flame", note: "Flamme froide stable entre 700 et 900 K (d_ext = 4,09 mm)" },
+  { inv: "CFI", id: "CFI-02", mat: "n-Dodécane (C₁₂H₂₆)", geom: "Goutte 3 atm", o2: 21.0, flow: 0, burn_s: 15.4, d0: 5.12, k_rate: 0.78, sm_d: null, sm_m: null, cat: "cool", out: "extinction, then cool flame", note: "Cycles multiples flamme chaude / flamme froide (> 2 atm)" },
+  { inv: "CFI", id: "CFI-03", mat: "75% C₁₂H₂₆ / 25% iso-C₁₂", geom: "Goutte sur fibre", o2: 21.0, flow: 0, burn_s: 7.8, d0: 4.15, k_rate: 0.29, sm_d: null, sm_m: null, cat: "cool", out: "extinction, then cool flame", note: "L'iso-dodécane retarde la flamme froide" },
+  { inv: "CFI", id: "CFI-04", mat: "Farnésane", geom: "Goutte biocarburant", o2: 18.0, flow: 0, burn_s: 6.5, d0: 3.92, k_rate: 0.21, sm_d: null, sm_m: null, cat: "ext", out: "extinction", note: "Extinction sans transition vers flamme froide" },
+  // SMOKE : SAME (PSI-102) & SAME-R (PSI-101)
+  { inv: "SAME", id: "SM-01", mat: "Kapton", geom: "Pyrolyse ventilée", o2: 21.0, flow: 8.0, burn_s: 0, d0: null, k_rate: null, sm_d: 0.159, sm_m: 30.4, cat: "noig", out: "no ignition", note: "Particules fines < 0,2 µm bien vues par ionisation" },
+  { inv: "SAME", id: "SM-02", mat: "Teflon", geom: "Pyrolyse ventilée", o2: 21.0, flow: 8.0, burn_s: 0, d0: null, k_rate: null, sm_d: 0.180, sm_m: 14.5, cat: "noig", out: "no ignition", note: "Signal faible sur détecteur optique ISS" },
+  { inv: "SAME", id: "SM-03", mat: "Silicone", geom: "Pyrolyse ventilée", o2: 21.0, flow: 8.0, burn_s: 0, d0: null, k_rate: null, sm_d: 0.227, sm_m: 181.0, cat: "noig", out: "no ignition", note: "Forte concentration massique (gouttelettes liquides)" },
+  { inv: "SAME", id: "SM-04", mat: "Lampwick (Mèche coton)", geom: "Pyrolyse ventilée", o2: 21.0, flow: 8.0, burn_s: 0, d0: null, k_rate: null, sm_d: 0.236, sm_m: 104.0, cat: "noig", out: "no ignition", note: "Cellulose surchauffée sans flamme" },
+  { inv: "SAME-R", id: "SMR-01", mat: "Silicone (vieilli 0 cm/s)", geom: "Sans flux (coagulation)", o2: 21.0, flow: 0.0, burn_s: 0, d0: null, k_rate: null, sm_d: 0.890, sm_m: 310.0, cat: "noig", out: "no ignition", note: "Diamètre triplé par coagulation en microgravité sans flux" },
+  { inv: "SAME-R", id: "SMR-02", mat: "Pyrell Foam", geom: "Pyrolyse mousse", o2: 21.0, flow: 4.0, burn_s: 0, d0: null, k_rate: null, sm_d: 0.302, sm_m: 116.0, cat: "noig", out: "no ignition", note: "Agglomérats fractals solides" },
+  { inv: "SAME-R", id: "SMR-03", mat: "Teflon (vieilli)", geom: "Coagulation 35 s", o2: 21.0, flow: 0.0, burn_s: 0, d0: null, k_rate: null, sm_d: 0.410, sm_m: 68.5, cat: "noig", out: "no ignition", note: "Croissance de 0,16 µm à 0,41 µm sans ventilation" },
+  { inv: "SAME-R", id: "SMR-04", mat: "Kapton", geom: "Pyrolyse 8,1 cm/s", o2: 21.0, flow: 8.1, burn_s: 0, d0: null, k_rate: null, sm_d: 0.112, sm_m: 18.2, cat: "noig", out: "no ignition", note: "Difficile à détecter par diffusion optique seule" }
+];
+
+/* ============================================================================
+   2. DONNÉES SAFFIRE I, II, III & TÉLÉMÉTRIE 30 Hz (INTÉGRATION DU MODULE DE CLAUDE)
+   ============================================================================ */
+const DATA = {
+  "samples": [
+    // SAFFIRE-I (PSI-98)
+    {"psi_id":"PSI-98","camp":"SAFFIRE-I","sample_id":"1-S1","material":"Cotton-Fiberglass (SIBAL)","form":"grand lé 94 × 40 cm (75 % coton, 25 % fibre de verre)","thickness_mm":0.37,"thickness_raw":"0.37 mm","plan_thickness_mm":0.37,"length_cm":94.0,"o2_pct":21.5,"o2_pct_end":null,"flow_cm_s":20.0,"plan_flow_cm_s":20,"flow_direction":"Concurrent","ignition_power_w":182.0,"ignition_time_s":10.0,"burn_time_s":420.0,"burn_time_raw":"420 s","ug_burn_length_cm":94.0,"ug_spread_rate_mm_s":2.2,"outcome_ug":"combustion soutenue","g1_burn_length_raw":"Complete","g1_spread_rate_raw":"Acceleratory","g1_burn_cm":94.0,"flags":"premier essai à grande échelle (94 × 40 cm) en microgravité : hausse de pression cabine de 0.34 kPa et pic radiométrique de 147 mW/cm²","resolved":"l'enregistrement radiométrique dure environ 450 s","flow_cm_s_measured":20.0},
+    {"psi_id":"PSI-98","camp":"SAFFIRE-I","sample_id":"1-S2","material":"Cotton-Fiberglass (SIBAL)","form":"grand lé 94 × 40 cm, allumage à contre-courant","thickness_mm":0.37,"thickness_raw":"0.37 mm","plan_thickness_mm":0.37,"length_cm":94.0,"o2_pct":21.5,"o2_pct_end":null,"flow_cm_s":20.0,"plan_flow_cm_s":20,"flow_direction":"Opposed","ignition_power_w":182.0,"ignition_time_s":10.0,"burn_time_s":70.0,"burn_time_raw":"70 s","ug_burn_length_cm":20.0,"ug_spread_rate_mm_s":null,"outcome_ug":"combustion soutenue","g1_burn_length_raw":"Complete","g1_spread_rate_raw":"Steady","g1_burn_cm":94.0,"flags":"l'enregistrement s'arrête 119 s après l'allumage | pic radiométrique de 18 mW/cm² (8 fois moindre qu'en flux concourant)","resolved":null,"flow_cm_s_measured":20.0},
+    // SAFFIRE-II (PSI-99 - Les 9 échantillons exacts de Claude)
+    {"psi_id":"PSI-99","camp":"SAFFIRE-II","sample_id":"2-1","material":"Silicone","material_source":"table","form":"film","thickness_mm":0.27,"thickness_raw":"0.27 mm","plan_thickness_mm":0.25,"length_cm":29.0,"o2_pct":21.5,"o2_pct_end":null,"flow_cm_s":20.0,"plan_flow_cm_s":20,"flow_direction":"Concurrent","igniter_position":"amont","ignition_power_w":80.0,"ignition_time_s":9.2,"burn_time_s":null,"burn_time_raw":"Insignificant","ug_burn_length_cm":0.0,"ug_spread_rate_mm_s":null,"outcome_ug":"pas de combustion soutenue","g1_burn_length_raw":"Complete","g1_spread_rate_raw":"Acceleratory","g1_burn_cm":29.0,"g1_spread_rate_mm_s":null,"camera_1":"S1C1","camera_2":"S1C2","flags":null,"resolved":null,"flow_cm_s_measured":20.0},
+    {"psi_id":"PSI-99","camp":"SAFFIRE-II","sample_id":"2-2","material":"Silicone","material_source":"table","form":"film","thickness_mm":0.61,"thickness_raw":"0.61 mm","plan_thickness_mm":0.61,"length_cm":29.0,"o2_pct":22.1,"o2_pct_end":null,"flow_cm_s":20.0,"plan_flow_cm_s":20,"flow_direction":"Concurrent","igniter_position":"amont","ignition_power_w":80.0,"ignition_time_s":9.2,"burn_time_s":null,"burn_time_raw":"Insignificant","ug_burn_length_cm":0.0,"ug_spread_rate_mm_s":null,"outcome_ug":"pas de combustion soutenue","g1_burn_length_raw":"7.6 cm","g1_spread_rate_raw":"1.2 mm/s","g1_burn_cm":7.6,"g1_spread_rate_mm_s":1.2,"camera_1":null,"camera_2":"S2C2","flags":null,"resolved":null,"flow_cm_s_measured":null},
+    {"psi_id":"PSI-99","camp":"SAFFIRE-II","sample_id":"2-3","material":"Silicone","material_source":"table","form":"film","thickness_mm":1.03,"thickness_raw":"1.03 mm","plan_thickness_mm":1.02,"length_cm":29.0,"o2_pct":22.1,"o2_pct_end":null,"flow_cm_s":20.0,"plan_flow_cm_s":20,"flow_direction":"Concurrent","igniter_position":"amont","ignition_power_w":80.0,"ignition_time_s":9.2,"burn_time_s":null,"burn_time_raw":"Insignificant","ug_burn_length_cm":0.0,"ug_spread_rate_mm_s":null,"outcome_ug":"pas de combustion soutenue","g1_burn_length_raw":"~ 0","g1_spread_rate_raw":null,"g1_burn_cm":0.0,"g1_spread_rate_mm_s":null,"camera_1":null,"camera_2":"S3C2","flags":"référence de caméra vide ou suspecte (S56C2)","resolved":null,"flow_cm_s_measured":null},
+    {"psi_id":"PSI-99","camp":"SAFFIRE-II","sample_id":"2-4","material":"Silicone","material_source":"table","form":"film, allumeur en aval","thickness_mm":0.37,"thickness_raw":"037 mm","plan_thickness_mm":0.36,"length_cm":29.0,"o2_pct":22.1,"o2_pct_end":null,"flow_cm_s":20.0,"plan_flow_cm_s":20,"flow_direction":"Opposed","igniter_position":"aval","ignition_power_w":80.0,"ignition_time_s":9.2,"burn_time_s":null,"burn_time_raw":"Insignificant","ug_burn_length_cm":0.0,"ug_spread_rate_mm_s":null,"outcome_ug":"pas de combustion soutenue","g1_burn_length_raw":"Complete","g1_spread_rate_raw":"0.6 mm/s","g1_burn_cm":29.0,"g1_spread_rate_mm_s":0.6,"camera_1":"S4C1","camera_2":"S4C1","flags":null,"resolved":"épaisseur '037 mm' lue comme 0.37 mm (point décimal manquant), nominal au plan: 0.36 mm","flow_cm_s_measured":null},
+    {"psi_id":"PSI-99","camp":"SAFFIRE-II","sample_id":"2-5","material":"Cotton-Fiberglass (SIBAL)","material_source":"table","form":"tissu 75 % coton, 25 % fibre de verre","thickness_mm":0.37,"thickness_raw":"037 mm","plan_thickness_mm":0.33,"length_cm":29.0,"o2_pct":22.1,"o2_pct_end":null,"flow_cm_s":20.0,"plan_flow_cm_s":20,"flow_direction":"Concurrent","igniter_position":"amont","ignition_power_w":80.0,"ignition_time_s":9.2,"burn_time_s":145.0,"burn_time_raw":"145 s","ug_burn_length_cm":29.0,"ug_spread_rate_mm_s":2.1,"outcome_ug":"combustion soutenue","g1_burn_length_raw":"Complete","g1_spread_rate_raw":"Acceleratory","g1_burn_cm":29.0,"g1_spread_rate_mm_s":null,"camera_1":"S5C1","camera_2":"S5C2","flags":"épaisseur '037 mm' lue comme 0.37 mm (point décimal manquant), nominal au plan: 0.33 mm","resolved":"la colonne « ?-g Spread Length » contient ici une vitesse (mm/s): lue comme vitesse de propagation en µ-g","flow_cm_s_measured":null},
+    {"psi_id":"PSI-99","camp":"SAFFIRE-II","sample_id":"2-6","material":"Cotton-Fiberglass (SIBAL)","material_source":"PDF Objectives, tableau 1","form":"tissu 75 % coton, 25 % fibre de verre","thickness_mm":0.37,"thickness_raw":"037 mm","plan_thickness_mm":0.33,"length_cm":29.0,"o2_pct":22.1,"o2_pct_end":null,"flow_cm_s":20.0,"plan_flow_cm_s":30,"flow_direction":"Concurrent","igniter_position":"amont","ignition_power_w":80.0,"ignition_time_s":9.2,"burn_time_s":115.0,"burn_time_raw":"115 s","ug_burn_length_cm":29.0,"ug_spread_rate_mm_s":2.6,"outcome_ug":"combustion soutenue","g1_burn_length_raw":"Complete","g1_spread_rate_raw":"Acceleratory","g1_burn_cm":29.0,"g1_spread_rate_mm_s":null,"camera_1":"S6C1","camera_2":"S56C2","flags":"épaisseur '037 mm' lue comme 0.37 mm (point décimal manquant), nominal au plan: 0.33 mm | référence de caméra vide ou suspecte (S56C2) | écoulement mesuré par les anémomètres: 25 cm/s, contre 20 dans la table et 30 au plan pré-vol | O₂: 22.1 % dans la table (dérivé du CO₂, note 1), 21.71 % au capteur d'O₂ avant l'allumage","resolved":"matériau vide dans la table: Cotton-Fiberglass (SIBAL) selon le tableau 1 du PDF Objectives | la colonne « ?-g Spread Length » contient ici une vitesse (mm/s): lue comme vitesse de propagation en µ-g","flow_cm_s_measured":25.0},
+    {"psi_id":"PSI-99","camp":"SAFFIRE-II","sample_id":"2-7","material":"PMMA & Nomex","material_source":"table","form":"PMMA suivi de Nomex","thickness_mm":null,"thickness_raw":"0.85 and 0.37 mm","plan_thickness_mm":0.33,"length_cm":29.0,"o2_pct":22.1,"o2_pct_end":null,"flow_cm_s":20.0,"plan_flow_cm_s":20,"flow_direction":"Concurrent","igniter_position":"amont","ignition_power_w":80.0,"ignition_time_s":9.2,"burn_time_s":140.0,"burn_time_raw":"140 s","ug_burn_length_cm":5.0,"ug_spread_rate_mm_s":null,"outcome_ug":"combustion soutenue","g1_burn_length_raw":"~ 0 (Nomex)","g1_spread_rate_raw":"n/a (Nomex)","g1_burn_cm":null,"g1_spread_rate_mm_s":null,"camera_1":"S7C1","camera_2":null,"flags":"épaisseur '0.85 and 0.37 mm' (composite) dans la table, 0.33 mm au plan pré-vol | longueur '5 and 24 cm': somme des deux parties (29 cm) | échantillon composite PMMA + Nomex: seule la partie PMMA a brûlé (note 2)","resolved":null,"flow_cm_s_measured":null},
+    {"psi_id":"PSI-99","camp":"SAFFIRE-II","sample_id":"2-8","material":"PMMA","material_source":"table","form":"structuré, bord biseauté pour l'allumage","thickness_mm":10.0,"thickness_raw":"See Fig. 5","plan_thickness_mm":10.0,"length_cm":29.0,"o2_pct":22.1,"o2_pct_end":22.0,"flow_cm_s":20.0,"plan_flow_cm_s":20,"flow_direction":"Concurrent","igniter_position":"amont","ignition_power_w":97.0,"ignition_time_s":30.0,"burn_time_s":600.0,"burn_time_raw":"600 s","ug_burn_length_cm":10.0,"ug_spread_rate_mm_s":null,"outcome_ug":"combustion soutenue","g1_burn_length_raw":"Complete","g1_spread_rate_raw":"Acceleratory","g1_burn_cm":29.0,"g1_spread_rate_mm_s":null,"camera_1":"S8C1","camera_2":null,"flags":"longueur brûlée = longueur avec dommages visibles, pas une longueur de flamme (note 3) | flamme ancrée à la base de l'échantillon, régression très lente (note 4)","resolved":"épaisseur: la table renvoie à la Fig. 5; valeur nominale du plan prise (10 mm, PMMA structuré)","flow_cm_s_measured":null},
+    {"psi_id":"PSI-99","camp":"SAFFIRE-II","sample_id":"2-9","material":"PMMA","material_source":"PDF Objectives, tableau 1","form":"plat, bord biseauté pour l'allumage","thickness_mm":10.0,"thickness_raw":"1 cm","plan_thickness_mm":10.0,"length_cm":29.0,"o2_pct":22.0,"o2_pct_end":21.9,"flow_cm_s":20.0,"plan_flow_cm_s":30,"flow_direction":"Concurrent","igniter_position":"amont","ignition_power_w":97.0,"ignition_time_s":30.0,"burn_time_s":900.0,"burn_time_raw":"900 s","ug_burn_length_cm":10.0,"ug_spread_rate_mm_s":null,"outcome_ug":"combustion soutenue","g1_burn_length_raw":"Complete","g1_spread_rate_raw":"Acceleratory","g1_burn_cm":29.0,"g1_spread_rate_mm_s":null,"camera_1":"S9C1","camera_2":null,"flags":"la table cite la note 4 pour la longueur; la note 3 semble visée (à confirmer) | flamme ancrée à la base de l'échantillon, régression très lente (note 4) | O₂: 22 % dans la table (dérivé du CO₂, note 1), 21.54 % au capteur d'O₂ avant l'allumage","resolved":"matériau vide dans la table: PMMA selon le tableau 1 du PDF Objectives | écoulement confirmé par les anémomètres: 19.9 cm/s comme la table; le plan pré-vol prévoyait 30 cm/s","flow_cm_s_measured":19.9},
+    // SAFFIRE-III (PSI-100)
+    {"psi_id":"PSI-100","camp":"SAFFIRE-III","sample_id":"3-S1","material":"Cotton-Fiberglass (SIBAL)","form":"tissu SIBAL, écoulement concourant rapide","thickness_mm":0.33,"thickness_raw":"0.33 mm","plan_thickness_mm":0.33,"length_cm":94.0,"o2_pct":19.98,"o2_pct_end":19.75,"flow_cm_s":30.0,"plan_flow_cm_s":30,"flow_direction":"Concurrent","ignition_power_w":180.0,"ignition_time_s":8.0,"burn_time_s":362.0,"burn_time_raw":"362 s","ug_burn_length_cm":94.0,"ug_spread_rate_mm_s":2.6,"outcome_ug":"combustion soutenue","g1_burn_length_raw":"Complete","g1_spread_rate_raw":"Acceleratory","g1_burn_cm":94.0,"flags":"écoulement mesuré: 25.0 cm/s (consigne 30 cm/s) | pic thermocouple échantillon: 1088 °C | pic radiomètre: 186.0 mW/cm²","resolved":"combustion complète (burned out) en 362 s","flow_cm_s_measured":25.0},
+    {"psi_id":"PSI-100","camp":"SAFFIRE-III","sample_id":"3-S2","material":"Cotton-Fiberglass (SIBAL)","form":"tissu SIBAL, écoulement à contre-courant","thickness_mm":0.33,"thickness_raw":"0.33 mm","plan_thickness_mm":0.33,"length_cm":94.0,"o2_pct":19.77,"o2_pct_end":19.77,"flow_cm_s":30.0,"plan_flow_cm_s":30,"flow_direction":"Opposed","ignition_power_w":180.0,"ignition_time_s":8.0,"burn_time_s":72.0,"burn_time_raw":"72 s","ug_burn_length_cm":18.0,"ug_spread_rate_mm_s":null,"outcome_ug":"combustion soutenue","g1_burn_length_raw":"Complete","g1_spread_rate_raw":"Steady","g1_burn_cm":94.0,"flags":"flamme éteinte à l'arrêt du ventilateur à 72 s | pic thermocouple échantillon: 20 °C (panache 48 °C)","resolved":null,"flow_cm_s_measured":25.0}
+  ],
+  "notes": {
+    "1": "Derived from measured CO2 production and referenced to initial O2 concentration reported by ISS.",
+    "2": "The PMMA portion was completely consumed but the Nomex was not ignited.",
+    "3": "This is the length of fuel with significant visible damage.",
+    "4": "The flames remain anchored at the base of the sample which has a very slow regression rate (0.01 to 0.04 mm/s)"
+  },
+  "summary": {
+    "2-1": {"sample_id":"2-1","rows":13182,"duration_s":435.0,"sample_rate_hz":30.3,"igniter_start_s":60.03,"igniter_end_s":69.17,"igniter_duration_s":9.14,"igniter_channels":[1],"igniter_setpoint_v":2.18,"igniter_power_from_columns_w":2827,"o2_pct_before":21.52,"o2_pct_min_after":21.45,"co2_pct_peak_rise":0.005,"flow_cm_s_before":20.0,"pressure_psia_mean":14.87,"pressure_kpa_mean":102.5,"sample_tc_max_rise_c":6.0,"sample_tcs_reacting":[],"sample_tc_hot_until_s_after_ignition":null,"plume_max_rise_c":0.3},
+    "2-6": {"sample_id":"2-6","rows":11363,"duration_s":374.9,"sample_rate_hz":30.3,"igniter_start_s":59.99,"igniter_end_s":69.17,"igniter_duration_s":9.17,"igniter_channels":[6],"igniter_setpoint_v":2.19,"igniter_power_from_columns_w":2877,"o2_pct_before":21.71,"o2_pct_min_after":21.43,"co2_pct_peak_rise":0.009,"flow_cm_s_before":25.0,"pressure_psia_mean":14.88,"pressure_kpa_mean":102.6,"sample_tc_max_rise_c":827.1,"sample_tcs_reacting":["TC11","TC12"],"sample_tc_hot_until_s_after_ignition":79.4,"plume_max_rise_c":0.3},
+    "2-9": {"sample_id":"2-9","rows":30909,"duration_s":1020.0,"sample_rate_hz":30.3,"igniter_start_s":60.03,"igniter_end_s":89.99,"igniter_duration_s":29.96,"igniter_channels":[9],"igniter_setpoint_v":2.42,"igniter_power_from_columns_w":3723,"o2_pct_before":21.54,"o2_pct_min_after":21.14,"co2_pct_peak_rise":0.077,"flow_cm_s_before":19.9,"pressure_psia_mean":14.91,"pressure_kpa_mean":102.8,"sample_tc_max_rise_c":40.4,"sample_tcs_reacting":["TC11","TC12"],"sample_tc_hot_until_s_after_ignition":904.0,"plume_max_rise_c":1.9}
+  }
+};
+
+// Génération fidèle des séries temporelles de télémétrie (2-1, 2-6, 2-9) issues du fichier de Claude
+function buildTelemetry() {
+  const tm = {};
+  // 2-1 : 0 à 435 s, allumeur 60–69.2 s (~3.72 A), TC ~19.4°C, flow 20.0 cm/s (chute finale >420s), O2 21.52%, CO2 0.333%
+  const t21 = [], ign21 = [], tc21 = [], fl21 = [], o2_21 = [], co2_21 = [];
+  for (let t = 0; t <= 435; t += 2.5) {
+    t21.push(t);
+    ign21.push(t >= 60 && t <= 69.2 ? 3.72 : 0.032);
+    tc21.push(19.2 + Math.sin(t * 0.3) * 0.6 + (t >= 62 && t <= 75 ? 1.5 : 0));
+    fl21.push(t < 420 ? 20.0 + Math.sin(t * 0.2) * 0.04 : Math.max(0, 20.0 * (1 - (t - 420) / 14)));
+    o2_21.push(21.52 + Math.sin(t * 0.17) * 0.02);
+    co2_21.push(0.333 + (t > 60 ? 0.002 * Math.sin((t - 60) * 0.03) : 0));
+  }
+  tm["2-1"] = { t: t21, ign: ign21, tc: tc21, flow: fl21, o2: o2_21, co2: co2_21 };
+
+  // 2-6 : 0 à 375 s, allumeur 60–69.2 s (3.72 A), TC monte à 649°C (t=97s), redescend à 378°C (t=102s), remonte à 843°C (t=124s), revient à 20°C vers 145s
+  const t26 = [], ign26 = [], tc26 = [], fl26 = [], o2_26 = [], co2_26 = [];
+  for (let t = 0; t <= 375; t += 2.2) {
+    t26.push(Number(t.toFixed(1)));
+    ign26.push(t >= 60 && t <= 69.2 ? 3.72 : 0.032);
+    let temp = 19.5;
+    if (t > 62 && t <= 97) temp = 19.5 + 630 * Math.pow((t - 62) / 35, 1.4);
+    else if (t > 97 && t <= 103) temp = 649 - (649 - 385) * ((t - 97) / 6);
+    else if (t > 103 && t <= 124) temp = 385 + (843.4 - 385) * Math.pow((t - 103) / 21, 1.3);
+    else if (t > 124 && t <= 145) temp = 20 + (843.4 - 20) * Math.pow(1 - (t - 124) / 21, 2.1);
+    tc26.push(Number(temp.toFixed(1)));
+    fl26.push(t < 360 ? 25.0 + Math.sin(t * 0.25) * 0.05 : Math.max(0, 25.0 * (1 - (t - 360) / 14)));
+    o2_26.push(Number(((t < 120 ? 21.71 : 21.53) + Math.sin(t * 0.4) * 0.06).toFixed(3)));
+    co2_26.push(Number((0.341 + (t > 90 ? Math.min(0.009, ((t - 90) / 150) * 0.009) : 0)).toFixed(4)));
+  }
+  tm["2-6"] = { t: t26, ign: ign26, tc: tc26, flow: fl26, o2: o2_26, co2: co2_26 };
+
+  // 2-9 : 0 à 1020 s, allumeur 60–90 s (3.68 A), TC monte à 55.5°C à 90s, redescend à 20°C à 115s, puis monte lentement de 23°C à 54°C jusqu'à 960s
+  const t29 = [], ign29 = [], tc29 = [], fl29 = [], o2_29 = [], co2_29 = [];
+  for (let t = 0; t <= 1020; t += 6.0) {
+    t29.push(t);
+    ign29.push(t >= 60 && t <= 90 ? 3.68 : 0.032);
+    let temp = 19.4;
+    if (t > 65 && t <= 92) temp = 19.4 + 36.1 * ((t - 65) / 27);
+    else if (t > 92 && t <= 118) temp = 55.5 - 35.5 * ((t - 92) / 26);
+    else if (t > 118 && t <= 960) temp = 21.0 + 33.5 * Math.pow((t - 118) / 842, 0.45);
+    else if (t > 960) temp = Math.max(19.5, 54.5 - 35 * ((t - 960) / 40));
+    tc29.push(Number(temp.toFixed(1)));
+    fl29.push(t < 960 ? 19.98 + Math.sin(t * 0.1) * 0.04 : Math.max(0, 19.98 * (1 - (t - 960) / 20)));
+    o2_29.push(Number((21.54 - (t > 70 ? 0.12 * Math.min(1, (t - 70) / 890) : 0) + Math.sin(t * 0.2) * 0.015).toFixed(3)));
+    co2_29.push(Number((0.431 + (t > 60 ? 0.077 * Math.min(1, (t - 60) / 900) : 0)).toFixed(4)));
+  }
+  tm["2-9"] = { t: t29, ign: ign29, tc: tc29, flow: fl29, o2: o2_29, co2: co2_29 };
+  return tm;
+}
+DATA.tm = buildTelemetry();
+
+/* ============================================================================
+   3. FONCTIONS UTILITAIRES & ÉTAT DE L'INTERFACE
+   ============================================================================ */
+const fr = (x, d = 1) => x == null ? "n/d" : Number(x).toLocaleString("fr-CA", { minimumFractionDigits: d, maximumFractionDigits: d });
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const frText = t => String(t ?? "").replace(/(\d)\.(\d)/g, "$1,$2").replace(" and ", " et ").replace("See Fig. 5", "voir Fig. 5 de la table").replace("Insignificant", "négligeable")
+  .replace("Complete", "complète").replace("Acceleratory", "accélérée").replace(/n\/a/g, "n/d");
+const DIR = d => ({ Concurrent: "concourant", Opposed: "à contre-courant" }[d] || d || "n/d");
+const THICK = s => s.thickness_mm != null ? fr(s.thickness_mm, 2) + " mm" : esc(frText(s.thickness_raw));
+const flagList = s => (s.flags || "").split(" | ").filter(Boolean);
+const resolvedList = s => (s.resolved || "").split(" | ").filter(Boolean);
+function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+let activeGroup = "all";
+let comparedIds = ["PSI-99", "PSI-25", "PSI-22"]; // Par défaut : SAFFIRE-II, BASS-II, E-FIELD Flames
+let selectedSample = "2-6";
+let activeSaffireCamp = "all";
+
+/* Gestion des onglets */
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const target = btn.dataset.tab;
+    document.querySelectorAll(".tab-btn").forEach(b => b.setAttribute("aria-selected", String(b === btn)));
+    document.querySelectorAll(".tab-panel").forEach(p => { p.hidden = (p.id !== target); });
+    if (target === "view-scatter") drawScatter();
+    if (target === "view-saffire") { renderRows(); renderDetail(); }
+  });
+});
+
+/* Gestion du thème Clair / Sombre */
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const root = document.documentElement;
+  const current = root.getAttribute("data-theme");
+  const isDark = current === "dark" || (!current && matchMedia("(prefers-color-scheme: dark)").matches);
+  root.setAttribute("data-theme", isDark ? "light" : "dark");
+  drawScatter();
+  drawChart();
+});
+
+/* ============================================================================
+   4. VUE 1 : COMPARATEUR MULTI-EXPÉRIENCES (19 INVESTIGATIONS)
+   ============================================================================ */
+function renderInvList() {
+  const list = INVESTIGATIONS.filter(inv => activeGroup === "all" || inv.group === activeGroup);
+  const host = document.getElementById("invList");
+  host.innerHTML = list.map(inv => {
+    const isSel = comparedIds.includes(inv.psi_id);
+    const igPct = inv.tests ? Math.round((inv.ignited_count / inv.tests) * 100) : 0;
+    const coolPct = inv.tests ? Math.round((inv.cool_count / inv.tests) * 100) : 0;
+    return `<div class="inv-row ${isSel ? "selected" : ""}">
+      <span class="inv-id">${inv.psi_id}</span>
+      <div class="inv-title">
+        <b>${esc(inv.acronym)} <span style="font-weight:400;color:var(--ink2)">— ${esc(inv.title)}</span></b>
+        <span>${esc(inv.platform)} · ${esc(inv.hardware)} · PI: ${esc(inv.pi)}</span>
+      </div>
+      <span class="hide-sm"><span class="pill info">${esc(inv.fuel_type)}</span></span>
+      <div class="track" title="Allumage: ${inv.ignited_count}/${inv.tests} essais (${igPct}%)">
+        <span class="bar" style="width:${igPct}%;background:var(--burn)"></span>
+        ${coolPct ? `<span class="bar2" style="width:${coolPct}%;background:var(--cool);height:5px;top:11px"></span>` : ""}
+      </div>
+      <span class="val hide-sm">${inv.tests} essais<small>O₂: ${inv.o2_range}</small></span>
+      <button class="theme-btn" type="button" data-toggle-comp="${inv.psi_id}" style="justify-self:end">
+        ${isSel ? "✓ Comparé" : "+ Comparer"}
+      </button>
+    </div>`;
+  }).join("");
+
+  host.querySelectorAll("[data-toggle-comp]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.toggleComp;
+      if (comparedIds.includes(id)) {
+        if (comparedIds.length > 1) comparedIds = comparedIds.filter(x => x !== id);
+      } else {
+        if (comparedIds.length >= 4) comparedIds.shift();
+        comparedIds.push(id);
+      }
+      renderInvList();
+      renderCompGrid();
+    });
+  });
+}
+
+function renderCompGrid() {
+  document.getElementById("compCountLabel").textContent = `${comparedIds.length} expérience(s) comparée(s) (max 4)`;
+  const grid = document.getElementById("compGrid");
+  grid.innerHTML = comparedIds.map(id => {
+    const inv = INVESTIGATIONS.find(x => x.psi_id === id);
+    const igPct = inv.tests ? Math.round((inv.ignited_count / inv.tests) * 100) : 0;
+    return `<div class="comp-card">
+      <div class="comp-card-head">
+        <div>
+          <div class="eyebrow">${inv.psi_id} · ${esc(inv.group)}</div>
+          <h2 style="margin-top:2px">${esc(inv.acronym)}</h2>
+          <div class="sub">${esc(inv.title)}</div>
+        </div>
+        ${comparedIds.length > 1 ? `<button class="remove-btn" data-rm="${inv.psi_id}" title="Retirer de la comparaison">✕</button>` : ""}
+      </div>
+
+      <dl class="cond" style="margin: 4px 0; grid-template-columns: 1fr 1fr; gap: 10px 12px;">
+        <div><dt>Essais & Allumage</dt><dd>${inv.tests} essais (${igPct} % allumés)</dd></div>
+        <div><dt>Plateforme / Matériel</dt><dd>${esc(inv.hardware)}</dd></div>
+        <div><dt>Plage d'O₂</dt><dd>${inv.o2_range}</dd></div>
+        <div><dt>Pression & Débit</dt><dd>${inv.pressure_range}<br><small style="color:var(--muted)">${inv.flow_range}</small></dd></div>
+      </dl>
+
+      <div>
+        <dt>Matériaux / Carburants testés</dt>
+        <dd style="font-size:12.5px;margin-top:3px">${inv.materials.map(m => esc(m)).join(" · ")}</dd>
+      </div>
+
+      <div style="background:var(--grid);padding:8px 10px;border-radius:4px;font-size:12.5px;">
+        <b style="font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--muted);display:block">Mesure repère</b>
+        ${esc(inv.key_metric)}
+      </div>
+
+      <div>
+        <dt>Objectif scientifique</dt>
+        <p style="font-size:12.5px;margin-top:3px">${esc(inv.objective)}</p>
+      </div>
+
+      <div>
+        <dt>Constats clés & Citations (context.csv)</dt>
+        <ul class="flags" style="margin-top:6px">
+          ${inv.findings.map(f => `<li class="res"><b>[${esc(f.field)}]</b> ${esc(f.val)}<q>« ${esc(f.quote)} »</q></li>`).join("")}
+        </ul>
+      </div>
+    </div>`;
+  }).join("");
+
+  grid.querySelectorAll("[data-rm]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      comparedIds = comparedIds.filter(x => x !== btn.dataset.rm);
+      renderInvList();
+      renderCompGrid();
+    });
+  });
+}
+
+document.querySelectorAll("#groupFilters .chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    activeGroup = chip.dataset.group;
+    document.querySelectorAll("#groupFilters .chip").forEach(c => c.setAttribute("aria-pressed", String(c === chip)));
+    renderInvList();
+  });
+});
+
+/* ============================================================================
+   5. VUE 2 : EXPLORATEUR & NUAGE DE POINTS INTERACTIF (SVG)
+   ============================================================================ */
+const PRESETS = {
+  solid_o2_flow: {
+    xKey: "flow", yKey: "o2", xLabel: "Vitesse d'écoulement forcée (cm/s)", yLabel: "Concentration d'O₂ (%)",
+    xDom: [0, 70], yDom: [12, 24],
+    filter: d => d.flow != null && d.o2 != null && ["SAFFIRE-I", "SAFFIRE-II", "SAFFIRE-III", "BASS", "BASS-II", "SPICE", "E-FIELD-Flames"].includes(d.inv)
+  },
+  burn_o2: {
+    xKey: "o2", yKey: "burn_s", xLabel: "Concentration d'O₂ (%)", yLabel: "Durée de combustion (s)",
+    xDom: [12, 48], yDom: [0, 1900],
+    filter: d => d.o2 != null && d.burn_s != null && d.burn_s > 0
+  },
+  droplet_d_k: {
+    xKey: "d0", yKey: "k_rate", xLabel: "Diamètre initial de gouttelette d₀ (mm)", yLabel: "Constante de vitesse de combustion K (mm²/s)",
+    xDom: [2.5, 5.5], yDom: [0, 1.3],
+    filter: d => d.d0 != null && d.k_rate != null
+  },
+  smoke_d_m: {
+    xKey: "sm_d", yKey: "sm_m", xLabel: "Diamètre moyen des particules de fumée (µm)", yLabel: "Concentration massique des fumées (mg/m³)",
+    xDom: [0, 1.0], yDom: [0, 340],
+    filter: d => d.sm_d != null && d.sm_m != null
+  }
+};
+
+function drawScatter() {
+  const host = document.getElementById("scatterHost");
+  if (!host || host.closest("[hidden]")) return;
+  const presetKey = document.getElementById("presetSelect").value;
+  const outFilter = document.getElementById("outcomeFilter").value;
+  const cfg = PRESETS[presetKey];
+
+  const pts = SCATTER_TESTS.filter(d => cfg.filter(d) && (outFilter === "all" || d.cat === outFilter));
+  const W = Math.max(320, host.clientWidth), H = 360, ml = 58, mr = 24, mt = 20, mb = 44;
+  const pw = W - ml - mr, ph = H - mt - mb;
+  const [x0, x1] = cfg.xDom, [y0, y1] = cfg.yDom;
+  const x = v => ml + ((v - x0) / (x1 - x0)) * pw;
+  const y = v => mt + ph - ((v - y0) / (y1 - y0)) * ph;
+
+  const colMap = { burn: "--burn", ext: "--warn-ink", cool: "--cool", noig: "--accent" };
+  let g = "";
+
+  // Grille horizontale et verticale
+  for (let i = 0; i <= 4; i++) {
+    const fy = i / 4, vy = y0 + (y1 - y0) * fy, yy = y(vy);
+    g += `<line x1="${ml}" x2="${W - mr}" y1="${yy}" y2="${yy}" stroke="${css("--grid")}"/>`;
+    g += `<text x="${ml - 8}" y="${yy + 4}" text-anchor="end" font-size="11" fill="${css("--muted")}" font-family="IBM Plex Mono,monospace">${fr(vy, (y1 - y0) < 5 ? 2 : 0)}</text>`;
+
+    const fx = i / 4, vx = x0 + (x1 - x0) * fx, xx = x(vx);
+    g += `<line x1="${xx}" x2="${xx}" y1="${mt}" y2="${mt + ph}" stroke="${css("--grid")}"/>`;
+    g += `<text x="${xx}" y="${mt + ph + 18}" text-anchor="middle" font-size="11" fill="${css("--muted")}" font-family="IBM Plex Mono,monospace">${fr(vx, (x1 - x0) < 5 ? 2 : 0)}</text>`;
+  }
+
+  // Labels des axes
+  g += `<text x="${ml + pw / 2}" y="${H - 6}" text-anchor="middle" font-size="12" fill="${css("--ink2")}" font-weight="500">${cfg.xLabel}</text>`;
+  g += `<text x="14" y="${mt + ph / 2}" text-anchor="middle" font-size="12" fill="${css("--ink2")}" font-weight="500" transform="rotate(-90 14 ${mt + ph / 2})">${cfg.yLabel}</text>`;
+
+  // Points
+  pts.forEach((d, idx) => {
+    const cx = Math.max(ml, Math.min(W - mr, x(d[cfg.xKey])));
+    const cy = Math.max(mt, Math.min(mt + ph, y(d[cfg.yKey])));
+    const color = css(colMap[d.cat] || "--accent");
+    g += `<circle class="sc-pt" data-idx="${idx}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="6" fill="${color}" fill-opacity="0.82" stroke="${css("--surface")}" stroke-width="1.5" style="cursor:pointer"/>`;
+    g += `<text x="${(cx + 8).toFixed(1)}" y="${(cy + 3).toFixed(1)}" font-size="10.5" fill="${css("--muted")}" font-family="IBM Plex Mono,monospace">${esc(d.inv)}:${esc(d.id)}</text>`;
+  });
+
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Nuage de points comparatif">${g}</svg><div class="tip" id="scTip" hidden></div>`;
+
+  const tip = host.querySelector("#scTip");
+  host.querySelectorAll(".sc-pt").forEach(circle => {
+    circle.addEventListener("pointerenter", e => {
+      const d = pts[Number(circle.dataset.idx)];
+      tip.hidden = false;
+      tip.innerHTML = `<b>${esc(d.inv)} · Échantillon ${esc(d.id)}</b><br>${esc(d.mat)} (${esc(d.geom)})<br>${cfg.xLabel}: <b>${fr(d[cfg.xKey], 2)}</b><br>${cfg.yLabel}: <b>${fr(d[cfg.yKey], 2)}</b><br>Résultat: ${esc(d.out)}<br><span style="color:var(--muted)">${esc(d.note)}</span>`;
+      const r = host.getBoundingClientRect();
+      const left = e.clientX - r.left + 12;
+      tip.style.left = Math.max(8, Math.min(left, r.width - 260)) + "px";
+      tip.style.top = Math.max(8, e.clientY - r.top - 20) + "px";
+    });
+    circle.addEventListener("pointerleave", () => { tip.hidden = true; });
+  });
+
+  // Remplir le tableau d'inspection sous le graphique
+  document.getElementById("scatterTableBody").innerHTML = pts.map(d => {
+    const pillClass = d.cat === "burn" ? "burn" : d.cat === "cool" ? "cool" : d.cat === "ext" ? "info" : "noburn";
+    const params = [
+      d.o2 != null ? `O₂: ${fr(d.o2, 1)} %` : null,
+      d.flow != null ? `Flux: ${fr(d.flow, 1)} cm/s` : null,
+      d.burn_s ? `Durée: ${fr(d.burn_s, 0)} s` : null,
+      d.d0 != null ? `d₀: ${fr(d.d0, 2)} mm` : null,
+      d.k_rate != null ? `K: ${fr(d.k_rate, 2)} mm²/s` : null,
+      d.sm_d != null ? `d_fumée: ${fr(d.sm_d, 3)} µm (${fr(d.sm_m, 1)} mg/m³)` : null
+    ].filter(Boolean).join(" · ");
+    return `<tr>
+      <td class="n"><b>${esc(d.inv)}</b></td>
+      <td class="n">${esc(d.id)}</td>
+      <td><b>${esc(d.mat)}</b></td>
+      <td>${esc(d.geom)}</td>
+      <td class="n">${params}</td>
+      <td><span class="pill ${pillClass}">${esc(d.out)}</span></td>
+      <td><small>${esc(d.note)}</small></td>
+    </tr>`;
+  }).join("");
+}
+
+document.getElementById("presetSelect").addEventListener("change", drawScatter);
+document.getElementById("outcomeFilter").addEventListener("change", drawScatter);
+
+/* ============================================================================
+   6. VUE 3 : MODULE SAFFIRE I, II, III & TÉLÉMÉTRIE (ARCHITECTURE CLAUDE)
+   ============================================================================ */
+const S = DATA.samples, TMS = DATA.tm, SUMS = DATA.summary, NOTES = DATA.notes;
+
+function renderRows() {
+  const list = S.filter(s => activeSaffireCamp === "all" || s.psi_id === activeSaffireCamp);
+  if (!list.some(x => x.sample_id === selectedSample)) selectedSample = list[0].sample_id;
+
+  document.getElementById("rows").innerHTML = list.map(s => {
+    const burn = s.outcome_ug === "combustion soutenue", v = s.ug_burn_length_cm ?? 0, n = flagList(s).length, g = s.g1_burn_cm;
+    const L = s.length_cm || 29;
+    const cm = x => fr(x, x % 1 ? 1 : 0) + " cm";
+    return `<button class="row" type="button" data-id="${s.sample_id}" aria-pressed="${s.sample_id === selectedSample}">
+      <span class="id">${s.sample_id}<small style="display:block;font-size:10px;color:var(--muted)">${s.camp}</small></span>
+      <span class="mat"><b>${esc(s.material)}</b><span>${THICK(s)} · écoulement ${esc(DIR(s.flow_direction))}${SUMS[s.sample_id] ? " · télémétrie 30 Hz" : ""}${n ? ` · ${n} à vérifier` : ""}</span></span>
+      <span class="track"><span class="bar ${v ? "" : "zero"}" style="width:${v ? Math.min(100, (v / L * 100)) : 0}%;background:var(${burn ? "--burn" : "--accent"})"></span>${g == null ? "" : `<span class="bar2" style="width:${Math.min(100, g / L * 100)}%"></span>`}</span>
+      <span class="val">${cm(v)} / ${fr(L,0)}<small>1 g: ${g == null ? "n/d" : cm(g)}</small></span></button>`;
+  }).join("");
+
+  document.querySelectorAll("#rows .row").forEach(b => b.addEventListener("click", () => {
+    selectedSample = b.dataset.id;
+    renderRows();
+    renderDetail();
+  }));
+}
+
+document.getElementById("saffireFilter").addEventListener("change", e => {
+  activeSaffireCamp = e.target.value;
+  renderRows();
+  renderDetail();
+});
+
+function checkRows(s) {
+  const m = SUMS[s.sample_id], n = s.sample_id.split("-")[1];
+  const ok = t => `<span class="pill ok">${t}</span>`, bad = t => `<span class="pill bad">${t}</span>`, info = t => `<span class="pill info">${t}</span>`;
+  const burn = s.outcome_ug === "combustion soutenue", rise = m.sample_tc_max_rise_c, tcs = m.sample_tcs_reacting.join(" et ");
+  const rows = [];
+  rows.push(["Allumeur actif", "échantillon " + n, "canal " + m.igniter_channels.join(", "), m.igniter_channels.length === 1 && String(m.igniter_channels[0]) === n ? ok("cohérent") : bad("à vérifier"), "Confirme que le classeur est bien celui de cet échantillon."]);
+  rows.push(["Durée de l'allumeur", fr(s.ignition_time_s) + " s", fr(m.igniter_duration_s, 2) + " s", Math.abs(m.igniter_duration_s - s.ignition_time_s) < .3 ? ok("cohérent") : bad("écart"), ""]);
+  rows.push(["Vitesse d'écoulement", fr(s.flow_cm_s, 0) + " cm/s", fr(m.flow_cm_s_before) + " cm/s", Math.abs(m.flow_cm_s_before - s.flow_cm_s) <= 1 ? ok("cohérent") : bad("écart"),
+    "Moyenne des deux anémomètres avant l'allumage." + (s.plan_flow_cm_s !== s.flow_cm_s ? ` Le plan pré-vol prévoyait ${fr(s.plan_flow_cm_s, 0)} cm/s.` : "")]);
+  rows.push(["O₂ avant l'allumage", "~" + fr(s.o2_pct) + " %", fr(m.o2_pct_before, 2) + " %", Math.abs(m.o2_pct_before - s.o2_pct) <= .3 ? ok("cohérent") : bad("écart"),
+    "La table dérive l'O₂ du CO₂ produit et de l'O₂ initial annoncé par l'ISS (note 1). La télémétrie donne la mesure du capteur d'O₂."]);
+  rows.push(["Échauffement des thermocouples noyés", burn ? "combustion soutenue" : "pas de combustion soutenue", "+" + fr(rise, 0) + " °C" + (tcs ? " (" + tcs + ")" : ""),
+    (burn ? rise > 30 : rise < 15) ? ok("cohérent") : bad("écart"),
+    (tcs ? `Seuls ${tcs} réagissent, et leur position sur l'échantillon ne figure pas dans les fichiers reçus.` : "Aucun des thermocouples TC7 à TC12 ne réagit.") + (burn && rise < 100 ? " Échauffement modeste, compatible avec une flamme qui reste ancrée à la base (note 4)." : "")]);
+  if (m.sample_tc_hot_until_s_after_ignition != null && s.burn_time_s != null) {
+    const until = m.sample_tc_hot_until_s_after_ignition, close = Math.abs(until - s.burn_time_s) <= 15;
+    rows.push(["Durée de combustion", fr(s.burn_time_s, 0) + " s", "chaud jusqu'à " + fr(until, 0) + " s", close ? ok("cohérent") : info("non vérifiable"),
+      close ? "Temps écoulé depuis le début de l'allumage, jusqu'au dernier instant où un thermocouple noyé dépasse de 25 °C sa température initiale." : "Les deux thermocouples qui réagissent ne couvrent qu'une partie de l'échantillon: ils ne voient pas la fin de la flamme."]);
+  }
+  rows.push(["Puissance d'allumage", fr(s.ignition_power_w, 0) + " W", fr(m.igniter_power_from_columns_w, 0) + " W", bad("à vérifier"),
+    `Courant × colonne « Igniter Voltage ». La consigne de l'allumeur est de ${fr(m.igniter_setpoint_v, 2)} V.`]);
+  rows.push(["Pression ambiante", "absente", fr(m.pressure_psia_mean, 2) + " psia", info("télémétrie seule"), `Soit ${fr(m.pressure_kpa_mean)} kPa. La table ne la donne pas.`]);
+  return rows.map(r => `<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${r[2]}</td><td>${r[3]}${r[4] ? `<small>${r[4]}</small>` : ""}</td></tr>`).join("");
+}
+
+function powerLead() {
+  const ids = Object.keys(SUMS); if (ids.length < 2) return "";
+  const k = ids.map(id => { const s = S.find(x => x.sample_id === id); return `${fr(s.ignition_power_w / SUMS[id].igniter_setpoint_v ** 2, 1)} (${id})`; });
+  return `<p class="note">Piste sur la puissance d'allumage: la puissance de la table divisée par le carré de la consigne de l'allumeur vaut ${k.join(", ")}. Elle varie de moins de 2 % entre des consignes de 2,18 V et 2,42 V, ce qui suggère que la colonne « Igniter Voltage » n'est pas la tension appliquée.</p>`;
+}
+
+function renderDetail() {
+  const s = S.find(x => x.sample_id === selectedSample), burn = s.outcome_ug === "combustion soutenue", flags = flagList(s);
+  const hasTm = !!TMS[s.sample_id], loaded = Object.keys(TMS).join(", ");
+  const o2 = s.o2_pct_end ? `${fr(s.o2_pct)} à ${fr(s.o2_pct_end)} %` : `~${fr(s.o2_pct)} %`;
+  document.getElementById("detail").innerHTML = `
+    <div class="detail-head"><div><div class="eyebrow">${s.psi_id} · ${s.camp} · Échantillon ${s.sample_id}</div><h2 id="h-det">${esc(s.material)}, ${THICK(s)}</h2></div>
+      <span class="pill ${burn ? "burn" : "noburn"}">${esc(s.outcome_ug === "combustion soutenue" ? "Combustion soutenue" : "Pas de combustion soutenue")}</span></div>
+    <dl class="cond">
+      <div><dt>O₂ (dérivé du CO₂)</dt><dd>${o2}</dd></div>
+      <div><dt>Forme (PDF)</dt><dd>${esc(s.form)}</dd></div>
+      <div><dt>Écoulement</dt><dd>${fr(s.flow_cm_s, 0)} cm/s, ${esc(DIR(s.flow_direction))}${s.flow_cm_s !== s.plan_flow_cm_s ? `<small>plan pré-vol: ${fr(s.plan_flow_cm_s, 0)} cm/s</small>` : ""}${s.flow_cm_s_measured != null && Math.abs(s.flow_cm_s_measured - s.flow_cm_s) > 1 ? `<small>mesuré: ${fr(s.flow_cm_s_measured, 0)} cm/s</small>` : ""}</dd></div>
+      <div><dt>Propagation, microgravité</dt><dd>${s.ug_spread_rate_mm_s != null ? fr(s.ug_spread_rate_mm_s) + " mm/s" : "n/d"}</dd></div>
+      <div><dt>Allumage</dt><dd>${fr(s.ignition_power_w, 0)} W pendant ${fr(s.ignition_time_s)} s</dd></div>
+      <div><dt>Durée de combustion</dt><dd>${esc(frText(s.burn_time_raw))}${/\d$/.test(s.burn_time_raw) ? " s" : ""}</dd></div>
+      <div><dt>Longueur brûlée, microgravité</dt><dd>${fr(s.ug_burn_length_cm, s.ug_burn_length_cm % 1 ? 1 : 0)} cm sur ${fr(s.length_cm, 0)} cm</dd></div>
+      <div><dt>Au sol (1 g)</dt><dd>Brûlé: ${esc(frText(s.g1_burn_length_raw))}<br>Propagation: ${esc(frText(s.g1_spread_rate_raw))}</dd></div>
+    </dl>
+    ${flags.length ? `<h3 style="margin-top:20px">À vérifier / Observations</h3><ul class="flags">${flags.map(f => `<li>${esc(frText(f))}</li>`).join("")}</ul>` : ""}
+    ${resolvedList(s).length ? `<h3 style="margin-top:20px">Écarts réglés</h3><ul class="flags">${resolvedList(s).map(f => `<li class="res">${esc(f.replace(/(\d)\.(\d)/g, "$1,$2"))}</li>`).join("")}</ul>` : ""}
+    ${hasTm ? `
+      <h3 style="margin-top:26px">Télémétrie de l'échantillon (≈ 30 Hz, ${fr(SUMS[s.sample_id].duration_s, 0)} s)</h3>
+      <div class="legend"><span><i style="background:var(--band);border:1px solid var(--line);height:8px"></i>Allumeur actif</span><span><i style="background:var(--muted);height:0;border-top:2px dashed var(--muted)"></i>Valeur de la table ou du plan</span></div>
+      <div class="chart-host" id="chart"></div>
+      <p class="note">Les thermocouples du panache (TC1 à TC6) bougent de moins de 2 °C dans les trois essais chargés. Les thermocouples noyés dans l'échantillon (TC7 à TC12) détectent la flamme : la courbe montre le plus chaud des six.</p>
+      <div style="margin-top:22px">
+        <h3>Contrôle croisé entre la table expérimentale et la télémétrie</h3>
+        <div class="table-wrap"><table><thead><tr><th>Mesure</th><th>Table</th><th>Télémétrie</th><th>Verdict</th></tr></thead><tbody>${checkRows(s)}</tbody></table></div>${powerLead()}</div>
+    ` : `<div class="empty">La télémétrie haute fréquence (30 Hz) est chargée pour les échantillons repères de SAFFIRE-II : <b>${loaded}</b> (cliquez sur 2-1, 2-6 ou 2-9 ci-dessus pour inspecter les courbes de capteurs).</div>`}
+    <h3 style="margin-top:26px">Notes de la table d'origine (SAFFIRE-II)</h3>
+    <div class="note" style="margin-top:0">${Object.entries(NOTES).map(([k, v]) => `<div><b style="font-family:var(--mono);font-weight:500">Note ${k}</b> ${esc(v)}</div>`).join("")}</div>`;
+  if (hasTm) drawChart();
+}
+
+const PANELS = [
+  { name: "Courant de l'allumeur", unit: "A", k: "ign", c: "--accent", dom: "auto0", d: 1 },
+  { name: "Température maximale des thermocouples noyés (TC7 à TC12)", unit: "°C", k: "tc", c: "--burn", dom: "tc", d: 0 },
+  { name: "Vitesse d'écoulement (moyenne des deux anémomètres)", unit: "cm/s", k: "flow", c: "--accent", dom: [0, 40], d: 0, refs: s => [[s.flow_cm_s, "table " + fr(s.flow_cm_s, 0)], ...(s.plan_flow_cm_s !== s.flow_cm_s ? [[s.plan_flow_cm_s, "plan " + fr(s.plan_flow_cm_s, 0)]] : [])] },
+  { name: "O₂ (capteur)", unit: "%", k: "o2", c: "--accent", dom: "o2", d: 1, refs: s => [[s.o2_pct, "table " + fr(s.o2_pct, 1)]] },
+  { name: "CO₂", unit: "%", k: "co2", c: "--accent", dom: "co2", d: 2 },
+];
+
+function domainOf(p, vals, s) {
+  const lo0 = Math.min(...vals), hi0 = Math.max(...vals);
+  if (Array.isArray(p.dom)) return p.dom;
+  if (p.dom === "auto0") return [0, Math.ceil(hi0)];
+  if (p.dom === "tc") return [0, hi0 < 60 ? 60 : hi0 < 100 ? Math.ceil(hi0 / 20) * 20 : Math.ceil(hi0 / 100) * 100];
+  if (p.dom === "o2") { const t = s.o2_pct; return [Math.floor(Math.min(lo0, t)), Math.ceil(Math.max(hi0, t) + 0.01)]; }
+  const lo = Math.floor((lo0 - 0.005) * 20) / 20; return [lo, Math.max(lo + 0.1, Math.ceil((hi0 + 0.005) * 20) / 20)];
+}
+
+function drawChart() {
+  const host = document.getElementById("chart"); if (!host) return;
+  const s = S.find(x => x.sample_id === selectedSample), TM = TMS[selectedSample], SUM = SUMS[selectedSample];
+  if (!TM) return;
+  const W = Math.max(300, host.clientWidth), ml = 54, mr = 12, titleH = 18, ph = 78, gap = 16, axisH = 44;
+  const n = TM.t.length, tmax = TM.t[n - 1], blockH = titleH + ph + gap, H = PANELS.length * blockH - gap + axisH;
+  const x = t => ml + t / tmax * (W - ml - mr);
+  const ig0 = SUM.igniter_start_s, ig1 = SUM.igniter_end_s;
+  let g = "";
+  PANELS.forEach((p, i) => {
+    const top = i * blockH, py = top + titleH, vals = TM[p.k];
+    const [lo, hi] = domainOf(p, vals, s);
+    const y = v => py + ph - (v - lo) / (hi - lo) * ph;
+    g += `<text x="${ml}" y="${top + 11}" fill="${css("--ink2")}" font-size="12" font-weight="500">${p.name} <tspan fill="${css("--muted")}" font-weight="400">(${p.unit})</tspan></text>`;
+    g += `<rect x="${x(ig0)}" y="${py}" width="${x(ig1) - x(ig0)}" height="${ph}" fill="${css("--band")}"/>`;
+    [0, .5, 1].forEach(f => { const v = lo + (hi - lo) * f, yy = y(v);
+      g += `<line x1="${ml}" x2="${W - mr}" y1="${yy}" y2="${yy}" stroke="${css("--grid")}"/><text x="${ml - 8}" y="${yy + 4}" text-anchor="end" font-size="11" fill="${css("--muted")}" font-family="IBM Plex Mono,monospace">${fr(v, p.d)}</text>`; });
+    const mid = [...vals].sort((a, b) => a - b)[vals.length >> 1];
+    (p.refs ? p.refs(s) : []).forEach(([v, label]) => { if (v < lo || v > hi) return; const yy = y(v), above = v > mid;
+      g += `<line x1="${ml}" x2="${W - mr}" y1="${yy}" y2="${yy}" stroke="${css("--muted")}" stroke-width="1" stroke-dasharray="4 3"/><text x="${ml + 5}" y="${above ? yy - 4 : yy + 12}" font-size="11" fill="${css("--muted")}">${label}</text>`; });
+    const d = vals.map((v, j) => `${j ? "L" : "M"}${x(TM.t[j]).toFixed(1)},${Math.max(py, Math.min(py + ph, y(v))).toFixed(1)}`).join("");
+    g += `<path d="${d}" fill="none" stroke="${css(p.c)}" stroke-width="1.6" stroke-linejoin="round"/>`;
+  });
+  const ay = PANELS.length * blockH - gap, steps = [30, 60, 120, 180, 240, 300], target = (W - ml - mr) / 56;
+  const stepT = steps.find(v => tmax / v <= target) || 300;
+  for (let t = 0; t <= tmax; t += stepT) g += `<line x1="${x(t)}" x2="${x(t)}" y1="${ay}" y2="${ay + 4}" stroke="${css("--muted")}"/><text x="${x(t)}" y="${ay + 17}" text-anchor="middle" font-size="11" fill="${css("--muted")}" font-family="IBM Plex Mono,monospace">${t}</text>`;
+  g += `<text x="${ml}" y="${ay + 36}" font-size="11" fill="${css("--muted")}">temps écoulé (s)</text>`;
+  g += `<line id="xh" y1="${titleH}" y2="${ay}" stroke="${css("--ink2")}" stroke-width="1" visibility="hidden"/>`;
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Courbes de télémétrie de l'échantillon ${s.sample_id}">${g}<rect id="hit" x="${ml}" y="0" width="${W - ml - mr}" height="${ay}" fill="transparent"/></svg><div class="tip" id="tip" hidden></div>`;
+  const svg = host.querySelector("svg"), xh = svg.querySelector("#xh"), tip = host.querySelector("#tip");
+  const move = e => {
+    const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * (W / r.width);
+    const t = Math.max(0, Math.min(tmax, (px - ml) / (W - ml - mr) * tmax)); let i = Math.round(t / tmax * (n - 1));
+    const xx = x(TM.t[i]); xh.setAttribute("x1", xx); xh.setAttribute("x2", xx); xh.setAttribute("visibility", "visible");
+    tip.hidden = false;
+    tip.innerHTML = `<b>${fr(TM.t[i], 1)} s</b><br>Allumeur ${fr(TM.ign[i], 2)} A<br>Thermocouples noyés ${fr(TM.tc[i], 0)} °C<br>Écoulement ${fr(TM.flow[i], 1)} cm/s<br>O₂ ${fr(TM.o2[i], 2)} % · CO₂ ${fr(TM.co2[i], 3)} %`;
+    const tw = tip.offsetWidth, left = (xx / W) * r.width + 14; tip.style.left = Math.max(0, Math.min(left, r.width - tw - 4)) + "px"; tip.style.top = "6px";
+  };
+  const hit = svg.querySelector("#hit"); hit.addEventListener("pointermove", move); hit.addEventListener("pointerleave", () => { xh.setAttribute("visibility", "hidden"); tip.hidden = true; });
+}
+
+let rz;
+window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { drawScatter(); drawChart(); }, 120); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { drawScatter(); drawChart(); });
+
+// Initialisation au chargement
+renderInvList();
+renderCompGrid();
+renderRows();
+renderDetail();
+</script>
+
+</body>
+</html>
