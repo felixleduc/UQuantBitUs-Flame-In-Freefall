@@ -174,3 +174,8 @@ uv run python src/unify_data.py   # about 1 minute; needs data/raw/ and pdftotex
 Values come, in order of priority: experimental tables, then the per-test files read by
 `src/readers/` (one module per group of investigations), then `context.csv`. To fix a value by
 hand, add a row to `context.csv` with its quote and source, then rebuild.
+
+## Dashboard (`dashboard/`)
+
+Next.js app that reads `dashboard/data/*.json`, written from `data/processed/` by
+`uv run python src/export_dashboard_data.py`. See `dashboard/README.md` to run it.
