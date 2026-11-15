@@ -13,16 +13,18 @@ from pypdf import PdfReader
 
 
 class TestNasa(BaseModel):
-    nom_test: str = Field(description="Nom du test")
-    gravite_g: float | None = Field(
-        description="Le niveau de gravité de l'environnement où se situe la combustion"
-    )
-    oxygene_pct: float | None = Field(
-        description="Le pourcentage d'oxygène de l'environnement où se situe la combustion"
-    )
-    pression_psi: float | None = Field(description="Pression de l'expérience")
-    flux_cm_s: float | None = Field(description="Flux de ventilation ou de chaleur")
-    forme_flamme: str | None = Field(description="La morphologie (forme, couleur, etc)")
+    nom_test: str = Field(description="Nom du test ou fichier source")
+    fuel_type: str | None = Field(description="Type de combustible (solid, gas, droplet)")
+    material_family: str | None = Field(description="Famille du matériau ou combustible")
+    geometry: str | None = Field(description="Géométrie du matériau")
+    gravite_g: float | None = Field(description="Le niveau de gravité de l'environnement")
+    o2_percent: float | None = Field(description="Le pourcentage d'oxygène")
+    pressure_atm: float | None = Field(description="Pression de l'expérience en atmosphères")
+    flow_cm_s: float | None = Field(description="Flux de ventilation ou de chaleur en cm/s")
+    thickness_mm: float | None = Field(description="Épaisseur en mm")
+    diameter_mm: float | None = Field(description="Diamètre en mm")
+    ignited: str | None = Field(description="Indique si le matériau s'est enflammé (yes/no)")
+    outcome: str | None = Field(description="Issue de l'expérience")
     v_propagation_m_s: float | None = Field(description="Vitesse de propagation")
     alertes: str | None = Field(description="Alertes ou commentaires de sécurité")
 
@@ -48,51 +50,61 @@ def extraire_valeur(motif_regex: str, texte: str) -> float | None:
 
 
 def analyser_rapport(texte: str, nom_fichier: str) -> dict:
-    experience = "Expérience Nasa"
-    for prog in ["Bass-II", "BASS", "SoFIE", "Saffire", "FLEX", "BRE"]:
-        if re.search(prog, texte, re.IGNORECASE):
-            experience = prog
-            break
+    # 1. Identification du type de combustible
+    fuel_type = "solid"
+    if re.search(r"gas|burner|jet", texte, re.IGNORECASE):
+        fuel_type = "gas jet"
+    elif re.search(r"droplet|gouttelette", texte, re.IGNORECASE):
+        fuel_type = "droplet"
 
-    materiau = "Non-Spécifié"
+    # 2. Identification de la famille du matériau
+    material_family = "Non-Spécifié"
     for mat in ["cotton", "PMMA", "Nomex", "heptane", "Kapton", "acrylic", "cellulose"]:
         if re.search(mat, texte, re.IGNORECASE):
-            materiau = mat.capitalize()
+            material_family = mat.capitalize()
             break
 
-    oxygene = extraire_valeur(r"(\d+(?:\.\d+)?)\s*%\s*(?:O2|oxygen)", texte)
-    ventilation = extraire_valeur(r"(\d+(?:\.\d+)?)\s*cm/s", texte)
-    pression = extraire_valeur(r"(\d+(?:\.\d+)?)\s*kPa", texte)
-    flux_thermique = extraire_valeur(r"(\d+(?:\.\d+)?)\s*kW/m", texte)
-    epaisseur = extraire_valeur(r"(\d+(?:\.\d+)?)\s*mm\s*(?:thick|thickness)", texte)
-    vitesse = extraire_valeur(r"(\d+(?:\.\d+)?)\s*mm/s", texte)
+    # 3. Extraction des métriques clés alignées sur tests.csv
+    o2_percent = extraire_valeur(r"(\d+(?:\.\d+)?)\s*%\s*(?:O2|oxygen)", texte)
+    flow_cm_s = extraire_valeur(r"(\d+(?:\.\d+)?)\s*cm/s", texte)
+    
+    # Conversion de kPa en atm (1 atm ≈ 101.3 kPa) si trouvé, sinon valeur par défaut
+    pression_kpa = extraire_valeur(r"(\d+(?:\.\d+)?)\s*kPa", texte)
+    pressure_atm = pression_kpa / 101.3 if pression_kpa else 1.0
+
+    thickness_mm = extraire_valeur(r"(\d+(?:\.\d+)?)\s*mm\s*(?:thick|thickness)", texte)
+    diameter_mm = extraire_valeur(r"(\d+(?:\.\d+)?)\s*mm\s*(?:diam|diameter)", texte)
+    
     gravite = 0.0 if re.search(r"microgravity|zero-g|0\s*g|ISS", texte, re.IGNORECASE) else 1.0
 
-    if oxygene is not None and oxygene > 25.0:
-        risque = "Critique"
-    elif ventilation is not None and ventilation > 5.0:
-        risque = "Modéré"
-    else:
-        risque = "Faible"
+    # 4. Détermination de l'inflammation (yes/no) et de l'issue
+    ignited = "yes" if re.search(r"ignite|flame sustained|burning", texte, re.IGNORECASE) else "no"
+    outcome = "success" if ignited == "yes" else "extinguished"
+
+    vitesse = extraire_valeur(r"(\d+(?:\.\d+)?)\s*mm/s", texte)
+    v_propagation = vitesse / 1000.0 if vitesse else None  # conversion en m/s si besoin
 
     return {
-        "nom_experience": experience,
-        "materiau": materiau,
+        "nom_test": nom_fichier,
+        "fuel_type": fuel_type,
+        "material_family": material_family,
+        "geometry": "sheet" if thickness_mm else "rod",
         "gravite_g": gravite,
-        "oxygene_pct": oxygene,
-        "ventilation_cms": ventilation,
-        "pression_kpa": pression,
-        "flux_thermique_kwm2": flux_thermique,
-        "epaisseur_mm": epaisseur,
-        "vitesse_mm_s": vitesse,
-        "niveau_risque": risque,
-        "fichier_source": nom_fichier,
+        "o2_percent": o2_percent,
+        "pressure_atm": pressure_atm,
+        "flow_cm_s": flow_cm_s,
+        "thickness_mm": thickness_mm,
+        "diameter_mm": diameter_mm,
+        "ignited": ignited,
+        "outcome": outcome,
+        "v_propagation_m_s": v_propagation,
+        "alertes": "Alerte critique O2" if o2_percent and o2_percent > 25.0 else "Normal",
     }
 
 
 def main() -> None:
     dossier_entree = "donnees_brutes"
-    dossier_sortie = "donnees_propres"
+    dossier_sortie = "data/processed"  # Aligné sur le dossier attendu par le ML
     os.makedirs(dossier_entree, exist_ok=True)
     os.makedirs(dossier_sortie, exist_ok=True)
 
@@ -109,7 +121,7 @@ def main() -> None:
         donnees = analyser_rapport(texte, nom)
         resultats.append(donnees)
 
-    chemin_csv = os.path.join(dossier_sortie, "experiences_nasa.csv")
+    chemin_csv = os.path.join(dossier_sortie, "tests.csv")
     if pd is not None:
         df = pd.DataFrame(resultats)
         df.to_csv(chemin_csv, index=False, encoding="utf-8")
@@ -122,7 +134,6 @@ def main() -> None:
             writer.writeheader()
             writer.writerows(resultats)
         print(f"\nTerminé ! Tableau sauvegardé dans '{chemin_csv}'.")
-        print(resultats[:5])
 
 
 if __name__ == "__main__":
