@@ -96,7 +96,7 @@ USEFUL = [
     (r"flow traces", "yes", "daily notes per test (ignition success or failure, settings) with flow plots"),
     (r"test param\w* notes|test point log\.pdf|velocity traces|_MFCA_all\.pdf|^CLD-Flame/Raw Data/.*/(PSI-21_Raw Data_)?\d{5}\.pdf$",
      "no", "scanned parameter printouts, image-count logs or plots"),
-    (r"Operations\.pdf|SFS-W-|Offgassing|Crew Training|Crew Interface|Software|Procedure|VIDEO OVERLAY|Operations Manual"
+    (r"Operations\.pdf|SFS-W-|Offgassing|Crew Training|Crew Interface|Software|ACME-DOC-010|Procedure|VIDEO OVERLAY|Operations Manual"
      r"|_Ops\.|Hardware Presentation|Engineering Req|ERD\.|EIRD|Drawing|AcceptanceReview|DesignReview", "no", "operations, software or hardware paperwork"),
     (r"fact[ _]sheet|info[ _]sheet|Unlocking|Researchers[ _]Guide|benefits|TaskbookPubs|Presentation|Symposium|ASGSR|CSSCI|Conference",
      "no", "outreach or presentation material"),
