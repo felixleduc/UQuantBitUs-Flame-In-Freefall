@@ -57,18 +57,18 @@ def analyser_rapport(texte: str, nom_fichier: str) -> dict:
     elif re.search(r"droplet|gouttelette", texte, re.IGNORECASE):
         fuel_type = "droplet"
 
-    # 2. Identification de la famille du matériau
+   
     material_family = "Non-Spécifié"
     for mat in ["cotton", "PMMA", "Nomex", "heptane", "Kapton", "acrylic", "cellulose"]:
         if re.search(mat, texte, re.IGNORECASE):
             material_family = mat.capitalize()
             break
 
-    # 3. Extraction des métriques clés alignées sur tests.csv
+   
     o2_percent = extraire_valeur(r"(\d+(?:\.\d+)?)\s*%\s*(?:O2|oxygen)", texte)
     flow_cm_s = extraire_valeur(r"(\d+(?:\.\d+)?)\s*cm/s", texte)
     
-    # Conversion de kPa en atm (1 atm ≈ 101.3 kPa) si trouvé, sinon valeur par défaut
+  
     pression_kpa = extraire_valeur(r"(\d+(?:\.\d+)?)\s*kPa", texte)
     pressure_atm = pression_kpa / 101.3 if pression_kpa else 1.0
 
@@ -77,7 +77,7 @@ def analyser_rapport(texte: str, nom_fichier: str) -> dict:
     
     gravite = 0.0 if re.search(r"microgravity|zero-g|0\s*g|ISS", texte, re.IGNORECASE) else 1.0
 
-    # 4. Détermination de l'inflammation (yes/no) et de l'issue
+   
     ignited = "yes" if re.search(r"ignite|flame sustained|burning", texte, re.IGNORECASE) else "no"
     outcome = "success" if ignited == "yes" else "extinguished"
 
