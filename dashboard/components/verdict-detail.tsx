@@ -71,25 +71,30 @@ export function MethodPopover() {
         <PopoverHeader>
           <PopoverTitle>Method</PopoverTitle>
           <PopoverDescription>
-            A logistic regression trained on {model.trained_on} solid-material
-            flight tests (BASS, BASS-II, Saffire), from material, sample shape,
-            oxygen and air flow.
+            A logistic regression trained on {model.trained_on} flight tests
+            with a flame outcome: {model.tests_by_type.solid} solids, plus gas
+            burners, gas jets and droplets. For a solid it uses the material,
+            sample shape, oxygen, air flow and pressure.
           </PopoverDescription>
         </PopoverHeader>
         <ul className="mt-3 flex flex-col gap-1 text-sm text-muted-foreground">
           <li>
-            Tested on held-out flights: ROC AUC {model.metrics.roc_auc} (0.5 is
-            chance), Brier {model.metrics.brier} against{" "}
-            {model.metrics.baseline_brier} for always guessing the average.
+            On held-out solid tests: ROC AUC{" "}
+            {model.metrics.solids_pooled.roc_auc} (0.5 is chance), Brier{" "}
+            {model.metrics.solids_pooled.brier} against{" "}
+            {model.metrics.solids_baseline_brier} for always guessing the
+            average.
+          </li>
+          <li>
+            Pressure: every solid flew near 1 atm, so its effect comes from{" "}
+            {model.pressure_source.investigations.join(" and ")}, NASA&apos;s
+            gas-burner emulator of a burning solid (
+            {model.pressure_source.pressure_range_atm[0]} to{" "}
+            {model.pressure_source.pressure_range_atm[1]} atm).
           </li>
           <li>
             Likely range: 5th to 95th percentile of 200 refits on resampled
             data.
-          </li>
-          <li>
-            Pressure is not used: every test ran at{" "}
-            {model.pressure_range_atm[0]} to{" "}
-            {Math.round(model.pressure_range_atm[1] * 100) / 100} atm.
           </li>
           <li>70 % or more: keeps burning. Under 30 %: goes out.</li>
         </ul>

@@ -92,11 +92,17 @@ export default function HabitatCheckPage() {
                     {pct(probability)} %
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    chance a flame keeps spreading, likely {pct(low)} to{" "}
-                    {pct(high)} %
+                    {/* Outside the flight data the refits all extrapolate alike: a tight range would mislead */}
+                    {evidence.level === "extrapolated"
+                      ? "chance a flame keeps spreading, indicative only: outside the flight data"
+                      : `chance a flame keeps spreading, likely ${pct(low)} to ${pct(high)} %`}
                   </p>
                 </div>
-                <RangeBar value={probability} low={low} high={high} />
+                <RangeBar
+                  value={probability}
+                  low={evidence.level === "extrapolated" ? probability : low}
+                  high={evidence.level === "extrapolated" ? probability : high}
+                />
                 <div className="flex items-center gap-2 text-sm">
                   <EvidenceBadge level={evidence.level} />
                   <span className="text-muted-foreground">

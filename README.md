@@ -184,7 +184,8 @@ uv run python src/export_dashboard_data.py   # tests.json and findings.json
 uv run python ML.py                          # model.json: trains the model and prints its scores
 ```
 
-`ML.py` trains a logistic regression on the 218 solid-material flight tests with a known
-outcome, oxygen and air flow: will a flame keep burning, from material, sample shape, oxygen and
-flow. Cross-validated ROC AUC 0.84 (0.5 is chance). Pressure is not an input because every solid
-was flown near 1 atm. See `dashboard/README.md` to run the site.
+`ML.py` trains one logistic regression on every flight test with a flame outcome (2,100:
+solids, gas burners, gas jets, droplets): will the flame keep burning. Solids use material,
+sample shape, oxygen, air flow and pressure. Every solid flew near 1 atm, so their pressure
+effect comes from BRE, NASA's gas-burner emulator of a burning solid flown at 0.54 to 1 atm.
+On held-out solid tests: ROC AUC 0.81 (0.5 is chance). See `dashboard/README.md` to run the site.

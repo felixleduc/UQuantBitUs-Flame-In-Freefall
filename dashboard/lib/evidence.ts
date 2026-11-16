@@ -1,4 +1,5 @@
 import { findings, tests, type Test } from "@/lib/data"
+import { model } from "@/lib/model"
 import { MATERIALS, type Scenario } from "@/lib/scenario"
 
 // Flight tests of a material with a known oxygen level and a known outcome.
@@ -37,19 +38,27 @@ export function evidenceFor(s: Scenario): Evidence {
   const near = flown.filter((t) => Math.abs(t.o2_percent! - s.o2Percent) <= 2)
   const similar = near.length
   const name = MATERIALS[s.material]?.label ?? s.material
-  const lowest = Math.min(...tests.map((t) => t.pressure_atm ?? Infinity))
   const band = `${Math.round(s.o2Percent - 2)} to ${Math.round(s.o2Percent + 2)} % O2`
-  if (s.pressureAtm < lowest - 0.02)
-    return {
-      level: "extrapolated",
-      similar,
-      reason: `No solid was flown below ${lowest} atm: this is extrapolated beyond the flight data.`,
-    }
+  const [solidLow] = model.solids.pressure_range_atm
+  const [burnerLow, burnerHigh] = model.pressure_source.pressure_range_atm
+  const burner = model.pressure_source.investigations.join(" and ")
   if (similar === 0)
     return {
       level: "extrapolated",
       similar,
       reason: `No flight test of ${name} between ${band}: this is extrapolated.`,
+    }
+  if (s.pressureAtm < burnerLow - 0.02)
+    return {
+      level: "extrapolated",
+      similar,
+      reason: `No flame was flown below ${burnerLow} atm: this is extrapolated.`,
+    }
+  if (s.pressureAtm < solidLow - 0.02)
+    return {
+      level: "limited",
+      similar,
+      reason: `${similar} flight tests of ${name} near this oxygen, all at about 1 atm. The effect of ${s.pressureAtm} atm comes from ${burner} gas-burner tests (${burnerLow} to ${burnerHigh} atm).`,
     }
   return {
     level: similar < 10 ? "limited" : "strong",

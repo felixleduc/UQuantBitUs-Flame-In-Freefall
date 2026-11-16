@@ -3,70 +3,72 @@ import { z } from "zod"
 import modelJson from "@/data/model.json"
 import type { Scenario } from "@/lib/scenario"
 
-// Written by ML.py (repository root): a logistic regression trained on the solid-material
-// flight tests, evaluated on a grid of oxygen and air flow for each material, with the
-// 5th to 95th percentile of 200 bootstrap refits as the likely range. Validated once here.
+// Written by ML.py (repository root): a logistic regression trained on every flight test with
+// a flame outcome. For a solid, the chance a flame keeps burning is
+//   logit = intercept + condensed group + material + sample shape
+//           + O2 slope * (O2 - 21) / 3 + pressure slope * ln(pressure)
+//           + flow1 * ln(1 + flow) + flow2 * ln(1 + flow)^2
+// The pressure slope comes from BRE, NASA's gas-burner emulator of a burning solid, flown at
+// 0.54 to 1 atm. Validated once here.
 
-const Grid = z.array(z.array(z.number()))
+const Weights = z.record(z.string(), z.number())
+const Score = z.object({ roc_auc: z.number(), brier: z.number() })
 const Model = z.object({
   trained_on: z.number(),
-  kept_burning_share: z.number(),
+  tests_by_type: z.record(z.string(), z.number()),
   metrics: z.object({
-    balanced_accuracy: z.number(),
-    roc_auc: z.number(),
-    brier: z.number(),
-    baseline_brier: z.number(),
+    solids_pooled: Score,
+    solids_only_model: Score,
+    solids_baseline_brier: z.number(),
   }),
-  pressure_range_atm: z.tuple([z.number(), z.number()]),
-  o2: z.array(z.number()),
-  flow: z.array(z.number()),
-  materials: z.record(
-    z.string(),
-    z.object({
-      tests: z.number(),
-      geometry: z.string(),
-      p: Grid,
-      low: Grid,
-      high: Grid,
-    })
-  ),
+  o2_center: z.number(),
+  o2_scale: z.number(),
+  solids: z.object({
+    tests: z.number(),
+    o2_range: z.tuple([z.number(), z.number()]),
+    pressure_range_atm: z.tuple([z.number(), z.number()]),
+    dominant_shape: z.record(z.string(), z.string()),
+  }),
+  pressure_source: z.object({
+    investigations: z.array(z.string()),
+    pressure_range_atm: z.tuple([z.number(), z.number()]),
+  }),
+  coefficients: Weights,
+  refits: z.array(Weights),
 })
 
 export const model = Model.parse(modelJson)
 
-// Position of a value on a grid axis: index of the cell and fraction inside it
-function locate(axis: number[], value: number): [number, number] {
-  const v = Math.min(Math.max(value, axis[0]), axis[axis.length - 1])
-  const i = Math.min(
-    axis.findLastIndex((a) => a <= v),
-    axis.length - 2
-  )
-  return [i, (v - axis[i]) / (axis[i + 1] - axis[i])]
+const shapeOf = (s: Scenario, shape?: string) =>
+  shape ?? model.solids.dominant_shape[s.material] ?? "sphere"
+
+function chance(w: Record<string, number>, s: Scenario, shape?: string) {
+  const flow = Math.log1p(Math.max(0, s.flowCmS))
+  const logit =
+    w.intercept +
+    (w["group:condensed"] ?? 0) +
+    (w[`solid:${s.material}`] ?? 0) +
+    (w[`shape:${shapeOf(s, shape)}`] ?? 0) +
+    w["o2:solid"] * ((s.o2Percent - model.o2_center) / model.o2_scale) +
+    w["lnp:condensed"] * Math.log(Math.max(s.pressureAtm, 0.05)) +
+    w.flow1 * flow +
+    w.flow2 * flow * flow
+  return 1 / (1 + Math.exp(-logit))
 }
 
-// Bilinear interpolation between the four grid points around (O2, flow).
-// Pressure is not an input: every solid was flown near 1 atm.
-function read(grid: number[][], s: Scenario): number {
-  const [i, a] = locate(model.o2, s.o2Percent)
-  const [j, b] = locate(model.flow, s.flowCmS)
-  return (
-    grid[i][j] * (1 - a) * (1 - b) +
-    grid[i + 1][j] * a * (1 - b) +
-    grid[i][j + 1] * (1 - a) * b +
-    grid[i + 1][j + 1] * a * b
-  )
+// `shape` defaults to the shape the material was flown in most
+export function burnProbability(s: Scenario, shape?: string): number {
+  return chance(model.coefficients, s, shape)
 }
 
-const gridsOf = (material: string) =>
-  model.materials[material] ?? model.materials.PMMA
-
-export function burnProbability(s: Scenario): number {
-  return read(gridsOf(s.material).p, s)
-}
-
-export function likelyRange(s: Scenario): readonly [number, number] {
-  const g = gridsOf(s.material)
-  return [read(g.low, s), read(g.high, s)] as const
+// 5th to 95th percentile of the 200 refits on resampled data
+export function likelyRange(
+  s: Scenario,
+  shape?: string
+): readonly [number, number] {
+  const all = model.refits.map((w) => chance(w, s, shape)).sort((a, b) => a - b)
+  const at = (q: number) => all[Math.round(q * (all.length - 1))]
+  return [at(0.05), at(0.95)] as const
 }
 
 export type Lever = {
@@ -77,8 +79,8 @@ export type Lever = {
   delta: number
 }
 
-// Changes the model can judge: oxygen, ventilation within the flown range, material.
-// Pressure is left out because the flight data does not vary it.
+// Changes the model can judge. Stopping ventilation is left out: tests are filed under the
+// flow at ignition, so the data cannot tell what happens when the fans stop mid-fire.
 export function safetyLevers(s: Scenario): Lever[] {
   const base = burnProbability(s)
   const options: {
@@ -98,6 +100,12 @@ export function safetyLevers(s: Scenario): Lever[] {
       label: "Lower oxygen more",
       change: "−4 points of O2",
       next: { ...s, o2Percent: s.o2Percent - 4 },
+    },
+    {
+      id: "pressure",
+      label: "Raise pressure",
+      change: "+0.1 atm, same O2 %",
+      next: { ...s, pressureAtm: s.pressureAtm + 0.1 },
     },
     {
       id: "fan-down",
