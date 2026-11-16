@@ -3,10 +3,7 @@
 import * as React from "react"
 import { FlaskConicalIcon } from "lucide-react"
 
-import {
-  FlammabilityHeatmap,
-  heatColor,
-} from "@/components/flammability-heatmap"
+import { FlammabilityHeatmap } from "@/components/flammability-heatmap"
 import { InfoHint } from "@/components/info-hint"
 import { NothingFound } from "@/components/nothing-found"
 import { PageHeader } from "@/components/page-header"
@@ -39,10 +36,6 @@ function Limit({ label, test }: { label: string; test: Test }) {
       </p>
     </div>
   )
-}
-
-function Swatch({ children }: { children: React.ReactNode }) {
-  return <span className="flex items-center gap-1.5">{children}</span>
 }
 
 export default function MapPage() {
@@ -141,38 +134,6 @@ export default function MapPage() {
                   shape={modelShape}
                   tests={flown}
                 />
-
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-                  <Swatch>
-                    <span
-                      className="h-3 w-16 rounded-sm"
-                      style={{
-                        background: `linear-gradient(to right, ${heatColor(0)}, ${heatColor(0.5)}, ${heatColor(1)})`,
-                      }}
-                    />
-                    Goes out to keeps burning (model)
-                  </Swatch>
-                  <Swatch>
-                    <span className="w-5 border-t-2 border-dashed border-foreground" />
-                    50 % line
-                  </Swatch>
-                  <Swatch>
-                    <span className="size-2.5 rounded-full bg-foreground" />
-                    Test: kept burning
-                  </Swatch>
-                  <Swatch>
-                    <span className="size-2.5 rounded-full border-[1.5px] border-foreground bg-background" />
-                    Test: went out
-                  </Swatch>
-                  <Swatch>
-                    <span className="size-3.5 rounded-full border-[2.5px] border-foreground" />
-                    Your scenario
-                  </Swatch>
-                  <Swatch>
-                    <span className="h-3 w-5 border border-dashed border-foreground/60" />
-                    Oxygen range flown with solids
-                  </Swatch>
-                </div>
               </>
             )}
           </CardContent>

@@ -143,9 +143,13 @@ export default function HabitatCheckPage() {
             <Card>
               <CardHeader>
                 <CardTitle>What would stop it</CardTitle>
+                <CardDescription>
+                  Today: {pct(probability)} % chance a flame keeps spreading.
+                  Each row applies one change and gives the new chance.
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <LeverList levers={levers} />
+                <LeverList base={probability} levers={levers} />
               </CardContent>
             </Card>
 

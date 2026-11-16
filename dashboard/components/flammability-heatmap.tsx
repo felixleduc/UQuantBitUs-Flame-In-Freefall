@@ -21,6 +21,14 @@ export function heatColor(p: number) {
   return `color-mix(in oklch, ${hue} ${strength}%, var(--muted))`
 }
 
+// A background-coloured outline behind text, so labels read over the heatmap
+const HALO = {
+  paintOrder: "stroke",
+  stroke: "var(--background)",
+  strokeWidth: 4,
+  strokeLinejoin: "round",
+} as const
+
 type Hover = { x: number; y: number; title: string; lines: string[] }
 
 export function FlammabilityHeatmap({
@@ -46,7 +54,7 @@ export function FlammabilityHeatmap({
       for (let flow = 0; flow < FLOW_MAX; flow += 1)
         cells.push({ flow, o2, p: at(o2 + 0.25, flow + 0.5) })
     // 50 % line: the oxygen where the chance crosses one half, for each flow
-    const boundary: string[] = []
+    const boundary: [number, number][] = []
     for (let flow = 0; flow <= FLOW_MAX; flow += 1) {
       let low = O2_MIN
       let high = o2Max
@@ -56,13 +64,17 @@ export function FlammabilityHeatmap({
         if (at(mid, flow) < 0.5) low = mid
         else high = mid
       }
-      boundary.push(`${x(flow)},${y(high)}`)
+      boundary.push([x(flow), y(high)])
     }
     return { cells, boundary }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenario.material, scenario.pressureAtm, shape, o2Max])
 
   const [hover, setHover] = React.useState<Hover | null>(null)
+  // Where to write the 50 % line's label: towards its right end, inside the plot
+  const boundaryLabel = boundary.length
+    ? boundary[Math.min(boundary.length - 1, Math.round(boundary.length * 0.8))]
+    : undefined
   const [flownLow, flownHigh] = model.solids.o2_range
   const cellW = PLOT_W / FLOW_MAX
   const cellH = (0.5 / (o2Max - O2_MIN)) * PLOT_H
@@ -87,7 +99,11 @@ export function FlammabilityHeatmap({
   }
 
   return (
-    <div className="relative w-full" onMouseLeave={() => setHover(null)}>
+    <div
+      className="relative flex w-full flex-col gap-3"
+      onMouseLeave={() => setHover(null)}
+    >
+      <ChartKey pressure={scenario.pressureAtm} />
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="h-auto w-full"
@@ -118,12 +134,33 @@ export function FlammabilityHeatmap({
           strokeDasharray="2 4"
         />
         <polyline
-          points={boundary.join(" ")}
+          points={boundary.map((b) => b.join(",")).join(" ")}
           fill="none"
           stroke="var(--foreground)"
           strokeWidth={2}
           strokeDasharray="6 4"
         />
+
+        {boundaryLabel && (
+          <text
+            x={boundaryLabel[0]}
+            y={boundaryLabel[1] - 8}
+            textAnchor="end"
+            className="fill-foreground text-[11px] font-medium"
+            {...HALO}
+          >
+            50 % line: above it a flame keeps burning
+          </text>
+        )}
+        <text
+          x={x(FLOW_MAX) - 6}
+          y={y(flownHigh) - 6}
+          textAnchor="end"
+          className="fill-foreground text-[11px]"
+          {...HALO}
+        >
+          Solids flown: {Math.round(flownLow * 10) / 10} to {Math.round(flownHigh * 10) / 10} % O2
+        </text>
 
         {tests.map((t) => (
           <circle
@@ -161,6 +198,18 @@ export function FlammabilityHeatmap({
           stroke="var(--foreground)"
           strokeWidth={2.5}
         />
+        <text
+          x={
+            x(Math.min(scenario.flowCmS, FLOW_MAX)) +
+            (scenario.flowCmS > 35 ? -14 : 14)
+          }
+          y={y(scenario.o2Percent) + 4}
+          textAnchor={scenario.flowCmS > 35 ? "end" : "start"}
+          className="fill-foreground text-[11px] font-medium"
+          {...HALO}
+        >
+          You: {scenario.o2Percent} % O2, {scenario.flowCmS} cm/s
+        </text>
 
         {/* Axes */}
         {[0, 10, 20, 30, 40, 50].map((f) => (
@@ -223,6 +272,79 @@ export function FlammabilityHeatmap({
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+function KeyItem({
+  mark,
+  children,
+}: {
+  mark: React.ReactNode
+  children: React.ReactNode
+}) {
+  return (
+    <span className="flex items-center gap-1.5">
+      {mark}
+      {children}
+    </span>
+  )
+}
+
+// What every mark means, above the plot
+function ChartKey({ pressure }: { pressure: number }) {
+  return (
+    <div className="flex flex-col gap-2 text-xs text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span>
+          Colour: model chance a flame keeps burning at {pressure} atm
+        </span>
+        <span className="flex items-center gap-1.5 tabular-nums">
+          0 %
+          <span
+            className="h-2.5 w-28 rounded-sm"
+            style={{
+              background: `linear-gradient(to right, ${heatColor(0)}, ${heatColor(0.5)}, ${heatColor(1)})`,
+            }}
+          />
+          100 %
+        </span>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+        <KeyItem
+          mark={<span className="size-2.5 rounded-full bg-foreground" />}
+        >
+          Flight test: flame kept burning
+        </KeyItem>
+        <KeyItem
+          mark={
+            <span className="size-2.5 rounded-full border-[1.5px] border-foreground bg-background" />
+          }
+        >
+          Flight test: flame went out
+        </KeyItem>
+        <KeyItem
+          mark={
+            <span className="w-5 border-t-2 border-dashed border-foreground" />
+          }
+        >
+          50 % line (model)
+        </KeyItem>
+        <KeyItem
+          mark={
+            <span className="h-3 w-5 border border-dashed border-foreground/60" />
+          }
+        >
+          Oxygen range flown with solids
+        </KeyItem>
+        <KeyItem
+          mark={
+            <span className="size-3.5 rounded-full border-[2.5px] border-foreground" />
+          }
+        >
+          Your scenario
+        </KeyItem>
+      </div>
     </div>
   )
 }

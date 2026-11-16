@@ -16,6 +16,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { findings } from "@/lib/data"
 import { findingsAbout } from "@/lib/evidence"
+import { AREAS, areaOf } from "@/lib/fuel-types"
 import { MATERIALS } from "@/lib/scenario"
 
 // Most useful for habitat fire safety first; how the tests were run last.
@@ -56,9 +57,19 @@ function Findings() {
   const [material, setMaterial] = React.useState(
     MATERIAL_IDS.includes(linked) ? linked : "all"
   )
+  const [area, setArea] = React.useState(
+    MATERIAL_IDS.includes(linked) ? "solid" : "all"
+  )
   const [type, setType] = React.useState("all")
 
-  const ofMaterial = material === "all" ? findings : findingsAbout(material)
+  const ofArea = findings.filter(
+    (f) => area === "all" || areaOf(f.psi_id) === area
+  )
+  // Materials are solids: the material filter applies to solid findings only
+  const ofMaterial =
+    material === "all" || area !== "solid"
+      ? ofArea
+      : findingsAbout(material).filter((f) => areaOf(f.psi_id) === "solid")
   const counts = ofMaterial.reduce<Record<string, number>>((acc, f) => {
     acc[f.type] = (acc[f.type] ?? 0) + 1
     return acc
@@ -74,26 +85,50 @@ function Findings() {
       <div className="flex flex-col gap-4 p-4 md:p-8">
         <div className="flex flex-wrap items-start gap-3">
           <Select
-            value={material}
+            value={area}
             onValueChange={(v) => {
-              setMaterial(v)
+              setArea(v)
+              setMaterial("all")
               setType("all")
             }}
           >
-            <SelectTrigger size="sm" className="w-56" aria-label="Material">
+            <SelectTrigger size="sm" className="w-44" aria-label="Area">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="all">All materials</SelectItem>
-                {MATERIAL_IDS.map((id) => (
+                <SelectItem value="all">All areas</SelectItem>
+                {Object.entries(AREAS).map(([id, name]) => (
                   <SelectItem key={id} value={id}>
-                    {MATERIALS[id].label}
+                    {name}
                   </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
           </Select>
+          {area === "solid" && (
+            <Select
+              value={material}
+              onValueChange={(v) => {
+                setMaterial(v)
+                setType("all")
+              }}
+            >
+              <SelectTrigger size="sm" className="w-56" aria-label="Material">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">All materials</SelectItem>
+                  {MATERIAL_IDS.map((id) => (
+                    <SelectItem key={id} value={id}>
+                      {MATERIALS[id].label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
           <ToggleGroup
             type="single"
             variant="outline"

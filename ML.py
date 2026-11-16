@@ -28,7 +28,8 @@ compared with a model trained on solids only. Likely range: 5th to 95th percenti
 refits on bootstrap resamples.
 
 Output: dashboard/data/model.json, the coefficients the dashboard needs to predict a solid in
-any oxygen, pressure and flow (dashboard/lib/model.ts), for the full fit and every refit.
+any oxygen, pressure and flow (dashboard/lib/model.ts), for the full fit and every refit;
+dashboard/data/flight-tests.json, the tests the model learned from, with their label.
 
 Usage:
     uv run python ML.py
@@ -46,6 +47,7 @@ from sklearn.model_selection import RepeatedStratifiedKFold
 ROOT = Path(__file__).resolve().parent
 TESTS = ROOT / "data" / "processed" / "tests.csv"
 OUT = ROOT / "dashboard" / "data" / "model.json"
+TRAINING = ROOT / "dashboard" / "data" / "flight-tests.json"  # the tests the model learned from
 
 KEPT = {"burned", "burned out", "flow terminated", "extinguished at low flow", "extinguished by N2",
         "smoke point reached", "no smoke point", "lifted flame", "stable lifted flames", "fuel depleted"}
@@ -201,6 +203,11 @@ def main() -> None:
         "coefficients": w,
         "refits": refits,
     }))
+    columns = ["psi_id", "investigation", "test_id", "fuel_type", "material_family", "geometry",
+               "o2_percent", "pressure_atm", "flow_cm_s", "outcome", "kept_burning"]
+    rows = data[columns].assign(pressure_atm=data.pressure_atm.round(3), o2_percent=data.o2_percent.round(2))
+    TRAINING.write_text(json.dumps([{k: v for k, v in r.items() if pd.notna(v)} for r in rows.to_dict("records")]))
+    print(f"wrote {TRAINING.relative_to(ROOT)} ({TRAINING.stat().st_size / 1024:.0f} KB, {len(rows)} tests)")
     print(f"wrote {OUT.relative_to(ROOT)} ({OUT.stat().st_size / 1024:.0f} KB)")
 
 
