@@ -1,28 +1,25 @@
 # Dashboard
 
-Next.js, Tailwind v4 and shadcn/ui. Needs [bun](https://bun.sh) and Node 24.
+Next.js, Tailwind v4 and shadcn/ui. Needs [bun](https://bun.sh) and Node 24. Deployed on Vercel
+with `dashboard` as root directory; the build runs no Python.
 
 ```bash
 bun install
-bun run dev        # http://localhost:3000
-bun run build      # production build (all pages are static)
+bun run dev     # http://localhost:3000
+bun run build   # static production build
 ```
 
-## Pages
+| Page | Shows |
+|---|---|
+| Habitat check (`/`) | Verdict and likely range, what would stop it, closest flight tests, report findings |
+| Flammability map (`/map`) | Model chance by oxygen and by air flow, with the matching flight tests |
+| Space tests (`/tests`) | The 2,100 tests the model learned from, filterable |
+| Findings (`/findings`) | Report findings with quote and source, by area, material and type |
+| Coverage (`/coverage`) | Tests, outcomes, oxygen and pressure ranges per fuel type and material |
 
-| Page | Question it answers | Data |
-|---|---|---|
-| Habitat check (`/`) | Would this material keep burning in this habitat, and which change would stop it? | trained model + closest real flight tests + report findings |
-| Flammability map (`/map`) | Where did flames keep burning, by oxygen and air flow? | real tests |
-| Space tests (`/tests`) | Every solid-material test flown | real |
-| Findings (`/findings`) | What the NASA reports concluded, with quotes | real |
-| Coverage (`/coverage`) | How much evidence stands behind each material | real |
+Material and atmosphere are shared by every page.
 
-The scenario (material, habitat, oxygen, pressure, ventilation) is shared by every page.
-
-## Data
-
-- `data/tests.json` and `data/findings.json` are written by `uv run python src/export_dashboard_data.py`
-  (repository root) from `data/processed/`, and validated in `lib/data.ts`.
-- `data/model.json` is written by `uv run python ML.py` (repository root): the trained model's
-  predictions and likely ranges on a grid of oxygen and air flow per material, read by `lib/model.ts`.
+Data in `data/`, all written from the repository root and validated on load:
+- `tests.json`, `findings.json`: `src/export_dashboard_data.py` (read by `lib/data.ts`)
+- `model.json` (coefficients and resampled refits), `flight-tests.json`: `ML.py`
+  (read by `lib/model.ts` and `lib/flight-tests.ts`)
