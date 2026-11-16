@@ -181,12 +181,13 @@ export function ChanceCurve({
           </g>
         ))}
 
-        {/* model: likely band and curve; hovering anywhere on it reads the value */}
-        <polygon points={band} fill="var(--chart-2)" fillOpacity={0.2} />
+        {/* model: likely band and curve, in neutral ink so they read as a prediction, not as
+            a burn zone; hovering anywhere on it reads the value */}
+        <polygon points={band} fill="var(--foreground)" fillOpacity={0.12} />
         <polyline
           points={line}
           fill="none"
-          stroke="var(--chart-2)"
+          stroke="var(--foreground)"
           strokeWidth={2.5}
         />
         <rect
